@@ -13,8 +13,8 @@ namespace OnlineJudge.Parsing
         private StringBuilder _titleBuilder = new StringBuilder();
         private StringBuilder _descriptionBuilder = new StringBuilder();
 
-        private int _timeLimit;
-        private int _memoryLimit;
+        private int? _timeLimit;
+        private int? _memoryLimit;
 
         private int _Index = 0;
         private List<string> _Lines = new List<string>();
@@ -56,9 +56,9 @@ namespace OnlineJudge.Parsing
             var doc = new ParsedDocument
             {
                 Tite = _titleBuilder.ToString(),
-                Description = _titleBuilder.ToString(),
-                TimeLimitSeconds = _timeLimit,
-                MemoryLimitMB = _memoryLimit
+                Description = _descriptionBuilder.ToString(),
+                TimeLimitSeconds = _timeLimit.Value,
+                MemoryLimitMB = _memoryLimit.Value
             };
 
             return Result.Ok(doc);
@@ -66,6 +66,21 @@ namespace OnlineJudge.Parsing
 
         private Result Validate()
         {
+            if (_timeLimit == null)
+                _Errors.Add("Time limit was not specified");
+
+            if (_memoryLimit == null)
+                _Errors.Add("Memory limit was not specified");
+
+            if (_titleBuilder.Length == 0)
+                _Errors.Add("Title was not specified");
+
+            if (_descriptionBuilder.Length == 0)
+                _Errors.Add("Description was not specified");
+
+            if (_Errors.Any())
+                return Result.Fail(string.Join(Environment.NewLine, _Errors));
+
             return Result.Ok();
         }
 
@@ -76,12 +91,12 @@ namespace OnlineJudge.Parsing
             {
                 case ParsingState.Title:
                 {
-                        _titleBuilder.AppendLine(line);
+                        _titleBuilder.Append(line);
                         return;
                 }
                 case ParsingState.Description:
                 {
-                        _descriptionBuilder.AppendLine(line);
+                        _descriptionBuilder.Append(line);
                         return;
                 }
                 case ParsingState.TimeLimit:

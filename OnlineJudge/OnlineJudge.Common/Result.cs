@@ -17,6 +17,10 @@ public class Result
         Success = success;
         Error = error;
     }
+    public static Result Fail(string message)
+    {
+        return new Result(false, message);
+    }
 
     public static Result<T> Fail<T>(string message)
     {

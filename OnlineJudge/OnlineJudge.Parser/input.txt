@@ -1,7 +1,4 @@
-﻿TITLE: Tytuł
-
+﻿TITLE:  
 DESC: Napisz program:
-
 TIME: 10
-
 MEMORY: 15
