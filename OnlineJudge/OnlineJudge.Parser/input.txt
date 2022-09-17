@@ -1,0 +1,7 @@
+﻿TITLE: Tytuł
+
+DESC: Napisz program:
+
+TIME: 10
+
+MEMORY: 15
