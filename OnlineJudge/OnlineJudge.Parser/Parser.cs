@@ -56,7 +56,7 @@ namespace OnlineJudge.Parsing
             var doc = new ParsedDocument
             {
                 Tite = _titleBuilder.ToString(),
-                Description = _descriptionBuilder.ToString(),
+                Description = _descriptionBuilder.ToString().TrimEnd(),
                 TimeLimitSeconds = _timeLimit.Value,
                 MemoryLimitMB = _memoryLimit.Value
             };
@@ -96,7 +96,7 @@ namespace OnlineJudge.Parsing
                 }
                 case ParsingState.Description:
                 {
-                        _descriptionBuilder.Append(line);
+                        _descriptionBuilder.AppendLine(line);
                         return;
                 }
                 case ParsingState.TimeLimit:
@@ -167,7 +167,7 @@ namespace OnlineJudge.Parsing
         {
             return s.Split
             (
-                new string[] { "\r\n", "\r", "\n" },
+                new string[] { "\r\n", "\r", "\n", Environment.NewLine },
                 StringSplitOptions.None
             ).ToList();
         }

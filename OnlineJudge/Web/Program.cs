@@ -12,7 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<Context>(options => options.UseSqlite("filename=db.db"));
 builder.Services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddTransient<AccountService>();
-builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<CodeService>();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>
 {

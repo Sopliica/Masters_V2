@@ -1,0 +1,40 @@
+﻿@using OnlineJudge.Models.Domain
+@using OnlineJudge.Miscs
+@using OnlineJudge.Parsing
+@model Result<Assignment>
+@{
+    ViewData["Title"] = "View";
+}
+
+@if (Model.Success)
+{
+    <div id="content_box">
+        <textarea readonly>@Model.Value.Tite</textarea>
+        <br>
+        <textarea readonly>@Model.Value.Description</textarea>
+        <br>
+        <textarea readonly>@Model.Value.TimeLimitSeconds</textarea>
+        <br>
+        <textarea readonly>@Model.Value.MemoryLimitMB</textarea>
+    </div>
+}
+else
+{
+    <b>Something went wrong</b>
+    <b>@Model.Error</b>
+}
+
+<style>
+    #content_box
+    {
+        border: 3px solid green;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px
+    }
+
+    #content_box > textarea
+    {
+        width: 100%;
+    }
+</style>

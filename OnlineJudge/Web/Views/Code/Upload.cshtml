@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Upload Task";
+}
+
+<form enctype="multipart/form-data" method="post" action="Parse">
+    <dl>
+        <dt>
+            <label>Upload file</label>
+        </dt>
+        <dd>
+            <input type="file" name="file">
+        </dd>
+    </dl>
+    <input class="btn" type="submit" value="Upload" />
+</form>

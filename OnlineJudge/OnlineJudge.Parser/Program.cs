@@ -8,10 +8,14 @@ var parsed = new Parser().Parse(txt);
 if (parsed.Success)
 {
     Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine($"'{parsed.Value.Tite}'");
-    Console.WriteLine($"'{parsed.Value.Description}'");
+    Console.WriteLine($"{parsed.Value.Tite}");
+    Console.WriteLine("____________________");
+    Console.WriteLine($"{parsed.Value.Description}");
+    Console.WriteLine("____________________");
     Console.WriteLine(parsed.Value.TimeLimitSeconds);
+    Console.WriteLine("____________________");
     Console.WriteLine(parsed.Value.MemoryLimitMB);
+    Console.WriteLine("____________________");
 }
 else
 {
