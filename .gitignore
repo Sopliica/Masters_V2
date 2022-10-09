@@ -399,3 +399,4 @@ FodyWeavers.xsd
 OnlineJudge/Web/db.db
 OnlineJudge/Web/db.db-shm
 OnlineJudge/Web/db.db-wal
+OnlineJudge/Web/admin_passphrase.txt

@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OnlineJudge.Database;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OnlineJudge.Consts;
 using OnlineJudge.Parsing;
 using OnlineJudge.Services;
 using System.Text;
@@ -15,20 +16,39 @@ public class CodeController : Controller
         _Cs = cs;
     }
 
-    [HttpGet("{Id}")]
+    [HttpGet("/Code/View/{Id}")]
     public IActionResult View([FromRoute] Guid Id)
     {
-        var assignment = _Cs.Get(Id);
+        var assignment = _Cs.GetTask(Id);
 
         return View(assignment);
     }
 
+    [Authorize(Roles = Roles.Administrator)]
     public IActionResult Upload()
     {
         return View();
     }
 
+    [HttpGet("/Code/Delete/{Id}")]
+    [Authorize(Roles = Roles.Administrator)]
+    public IActionResult Delete([FromRoute] Guid Id)
+    {
+        var assignment = _Cs.GetTask(Id);
+
+        return View(assignment);;
+    }
+
+    [HttpPost("/Code/Delete/{Id}")]
+    [Authorize(Roles = Roles.Administrator)]
+    public IActionResult DeleteAction([FromForm] Guid Id)
+    {
+        var result = _Cs.TryRemove(Id);
+        return LocalRedirect("/");
+    }
+
     [HttpPost]
+    [Authorize(Roles = Roles.Administrator)]
     public IActionResult Parse([FromForm] IFormFile file)
     {
         if (file == null)
@@ -49,7 +69,7 @@ public class CodeController : Controller
 
             if (added.Success)
                 return RedirectToAction(nameof(View), new { Id = added.Value });
-        }    
+        }
 
         return View(result);
     }

@@ -1,15 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using OnlineJudge.Services;
 
 namespace OnlineJudge.Controllers;
 
 public class HomeController : Controller
 {
-    public HomeController()
+    private readonly CodeService _cs;
+
+    public HomeController(CodeService cs)
     {
+        _cs = cs;
     }
 
     public IActionResult Index()
     {
-        return View();
+        var tasks = _cs.GetAllTasks();
+        return View(tasks.Value);
     }
 }

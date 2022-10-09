@@ -19,12 +19,18 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult SignIn()
     {
+        if (User.Identity.IsAuthenticated)
+            return LocalRedirect("/");
+
         return View();
     }
 
     [HttpPost]
     public async Task<IActionResult> SignIn([FromForm] SignInInput input)
     {
+        if (User.Identity.IsAuthenticated)
+            return LocalRedirect("/");
+
         var result = await _service.TrySignIn(input);
 
         if (!result.Success)

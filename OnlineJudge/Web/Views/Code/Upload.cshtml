@@ -2,14 +2,33 @@
     ViewData["Title"] = "Upload Task";
 }
 
-<form enctype="multipart/form-data" method="post" action="Parse">
-    <dl>
-        <dt>
-            <label>Upload file</label>
-        </dt>
-        <dd>
-            <input type="file" name="file">
-        </dd>
-    </dl>
-    <input class="btn" type="submit" value="Upload" />
-</form>
+<div id="box">
+    <form enctype="multipart/form-data" method="post" action="Parse">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label for="formFile" class="form-label mt-4">Upload assignment definition file</label>
+            <input class="form-control" type="file" id="formFile" name="file">
+        </div>
+        <br />
+        <div id="upload_btn">
+            <input class="btn btn-success" type="submit" value="Upload" />
+        </div>
+    </form>
+</div>
+
+
+<style>
+    #upload_btn
+    {
+        display: flex; 
+        justify-content:flex-end
+    }
+
+    #box
+    {
+        margin-top: 15px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+    }
+</style>

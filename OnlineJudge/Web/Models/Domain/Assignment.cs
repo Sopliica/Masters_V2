@@ -11,5 +11,7 @@
         public int TimeLimitSeconds { get; set; }
 
         public int MemoryLimitMB { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

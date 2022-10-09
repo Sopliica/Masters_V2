@@ -3,7 +3,14 @@
 }
 
 <div id="box">
-<form>
+@if (!string.IsNullOrEmpty(TempData["ErrorMessage"]?.ToString()))
+{
+    <div class="err">
+        <span>@TempData["ErrorMessage"]</span>
+    </div>
+}
+<form method="post" action="SignIn">
+  @Html.AntiForgeryToken()
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example1">Email</label>
     <input name="Email" type="email" id="form2Example1" class="form-control" />
@@ -26,7 +33,7 @@
       <a href="#!">Forgot password?</a>
     </div>
   </div>
-  <button type="button" style="float:right;" class="btn btn-primary btn-block mb-1">Sign in</button>
+  <button type="submit" style="float:right;" class="btn btn-primary btn-block mb-1">Sign in</button>
   <div class="text-center">
     <p>Not a member? <a href="/Account/Register">Register</a></p>
 </form>
@@ -37,5 +44,11 @@
     {   
         margin: auto;
         width: 50%;
+    }
+
+    .err
+    {
+        color: red;
+        font-weight: bold;
     }
 </style>
