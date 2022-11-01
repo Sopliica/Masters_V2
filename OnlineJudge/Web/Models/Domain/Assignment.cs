@@ -4,7 +4,7 @@
     {
         public Guid Id { get; private set; } = Guid.NewGuid();
 
-        public string Tite { get; set; }
+        public string Title { get; set; }
 
         public string Description { get; set; }
 

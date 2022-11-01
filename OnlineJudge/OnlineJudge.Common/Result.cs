@@ -65,7 +65,7 @@ public class Result<T> : Result
         private set { _value = value; }
     }
 
-    protected internal Result(T value, bool success, string error)
+    public Result(T value, bool success, string error)
         : base(success, error)
     {
         Contract.Requires(value != null || !success);

@@ -18,7 +18,7 @@ namespace OnlineJudge.Services
         {
             var assignment = new Assignment
             {
-                Tite = doc.Tite,
+                Title = doc.Title,
                 Description = doc.Description,
                 MemoryLimitMB = doc.MemoryLimitMB,
                 TimeLimitSeconds = doc.TimeLimitSeconds,
@@ -40,7 +40,7 @@ namespace OnlineJudge.Services
             return Result.Ok(assignment);
         }
 
-        public Result TryRemove(Guid Id)
+        public Result Remove(Guid Id)
         {
             var assignment = context.Assignments.FirstOrDefault(x => x.Id == Id);
 

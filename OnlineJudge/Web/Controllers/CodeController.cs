@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineJudge.Consts;
+using OnlineJudge.Miscs;
+using OnlineJudge.Models.Domain;
 using OnlineJudge.Parsing;
 using OnlineJudge.Services;
 using System.Text;
@@ -9,19 +11,22 @@ namespace OnlineJudge.Controllers;
 
 public class CodeController : Controller
 {
-    private CodeService _Cs { get; }
+    private CodeService _CodeService { get; }
 
     public CodeController(CodeService cs)
     {
-        _Cs = cs;
+        _CodeService = cs;
     }
 
     [HttpGet("/Code/View/{Id}")]
     public IActionResult View([FromRoute] Guid Id)
     {
-        var assignment = _Cs.GetTask(Id);
+        var assignment = _CodeService.GetTask(Id);
 
-        return View(assignment);
+        var vm = new AssignmentViewModel(assignment.Value);
+        vm.AvailableLanguages = new List<string> { "csharp", "c++" };
+        var resultMapped = new Result<AssignmentViewModel>(vm, assignment.Success, assignment.Error);
+        return View(resultMapped);
     }
 
     [Authorize(Roles = Roles.Administrator)]
@@ -34,7 +39,7 @@ public class CodeController : Controller
     [Authorize(Roles = Roles.Administrator)]
     public IActionResult Delete([FromRoute] Guid Id)
     {
-        var assignment = _Cs.GetTask(Id);
+        var assignment = _CodeService.GetTask(Id);
 
         return View(assignment);;
     }
@@ -43,7 +48,7 @@ public class CodeController : Controller
     [Authorize(Roles = Roles.Administrator)]
     public IActionResult DeleteAction([FromForm] Guid Id)
     {
-        var result = _Cs.TryRemove(Id);
+        var result = _CodeService.Remove(Id);
         return LocalRedirect("/");
     }
 
@@ -65,7 +70,7 @@ public class CodeController : Controller
 
         if (result.Success)
         {
-            var added = _Cs.Add(result.Value);
+            var added = _CodeService.Add(result.Value);
 
             if (added.Success)
                 return RedirectToAction(nameof(View), new { Id = added.Value });

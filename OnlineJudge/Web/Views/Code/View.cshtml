@@ -1,7 +1,8 @@
 ﻿@using OnlineJudge.Models.Domain
 @using OnlineJudge.Miscs
+@using OnlineJudge.Models.IO
 @using OnlineJudge.Parsing
-@model Result<Assignment>
+@model Result<AssignmentViewModel>
 @{
     ViewData["Title"] = "View";
 }
@@ -9,13 +10,20 @@
 @if (Model.Success)
 {
     <div id="content_box">
-        <textarea readonly>@Model.Value.Tite</textarea>
+        <b class="fieldName">Title: </b>@Model.Value.Title
         <br>
-        <textarea readonly>@Model.Value.Description</textarea>
         <br>
-        <textarea readonly>@Model.Value.TimeLimitSeconds</textarea>
+        <b class="fieldName">Description: </b>@Model.Value.Description
         <br>
-        <textarea readonly>@Model.Value.MemoryLimitMB</textarea>
+        <br>
+        <b class="fieldName">Time Limit (seconds): </b>@Model.Value.TimeLimitSeconds
+        <br>
+        <br>
+        <b class="fieldName">Memory Limit (MB): </b>@Model.Value.MemoryLimitMB
+        <br>
+        <br>
+        <hr class="fieldName">
+        @await Html.PartialAsync("CodeEditor", new CodeEditorParams { TaskId = @Model.Value.Id, AvailableLanguages = Model.Value.AvailableLanguages})
     </div>
 }
 else
@@ -25,13 +33,17 @@ else
 }
 
 <style>
+    .fieldName
+    {
+        color: rgb(255, 255, 255);
+    }
     #content_box
     {
         margin-top: 15px;
-        border: 3px solid green;
         margin-left: auto;
         margin-right: auto;
-        padding: 10px
+        padding: 10px;
+        color: rgb(126, 231, 135);
     }
 
     #content_box > textarea

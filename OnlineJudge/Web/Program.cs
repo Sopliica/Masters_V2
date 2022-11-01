@@ -6,7 +6,6 @@ using OnlineJudge.Consts;
 using OnlineJudge.Database;
 using OnlineJudge.Models.Domain;
 using OnlineJudge.Services;
-using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +26,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
     options.SlidingExpiration = true;
     options.AccessDeniedPath = "/Forbidden/";
+    options.LoginPath = "/Account/SignIn/";
 });
 
 var app = builder.Build();
@@ -40,7 +40,7 @@ using (var serviceScope = app.Services.CreateScope())
     if (!context.Users.Any())
     {
         var user = new User("admin@localhost", Roles.Administrator);
-        var pw = new Random().Next(100_000, 999_999);
+        var pw = 12345; // new Random().Next(100_000, 999_999);
         File.WriteAllText("admin_passphrase.txt", pw.ToString());
         user.PasswordHash = hasher.HashPassword(user, pw.ToString());
         await context.Users.AddAsync(user);

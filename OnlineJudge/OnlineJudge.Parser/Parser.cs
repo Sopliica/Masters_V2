@@ -55,7 +55,7 @@ namespace OnlineJudge.Parsing
 
             var doc = new ParsedDocument
             {
-                Tite = _titleBuilder.ToString(),
+                Title = _titleBuilder.ToString(),
                 Description = _descriptionBuilder.ToString().TrimEnd(),
                 TimeLimitSeconds = _timeLimit.Value,
                 MemoryLimitMB = _memoryLimit.Value
