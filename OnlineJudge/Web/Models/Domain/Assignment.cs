@@ -13,5 +13,7 @@
         public int MemoryLimitMB { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+
+        public List<Submission> Submissions { get; set; } = new List<Submission>();
     }
 }

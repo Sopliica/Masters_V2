@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using OnlineJudge.Consts;
 using OnlineJudge.Miscs;
 using OnlineJudge.Models.Domain;
+using OnlineJudge.Models.IO;
 using OnlineJudge.Parsing;
 using OnlineJudge.Services;
+using System.Security.Claims;
 using System.Text;
 
 namespace OnlineJudge.Controllers;
@@ -77,5 +79,22 @@ public class CodeController : Controller
         }
 
         return View(result);
+    }
+
+    [HttpPost("/Code/Submission/")]
+    [Authorize]
+    [IgnoreAntiforgeryToken]
+    public IActionResult SubmitSolution([FromBody] SubmissionInput input)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var result = _CodeService.SaveSubmission(input, Guid.Parse(userId));
+        return Ok();
+    }
+
+    [HttpGet]
+    public IActionResult Submissions()
+    {
+        var tasks = _CodeService.GetAllSubmissions();
+        return View(tasks.Value);
     }
 }

@@ -2,6 +2,8 @@
 using OnlineJudge.Parsing;
 using OnlineJudge.Database;
 using OnlineJudge.Models.Domain;
+using OnlineJudge.Models.IO;
+using Microsoft.EntityFrameworkCore;
 
 namespace OnlineJudge.Services
 {
@@ -57,6 +59,31 @@ namespace OnlineJudge.Services
         {
             var assignments = context.Assignments.Where(x => !x.IsDeleted).ToList();
             return Result.Ok(assignments);
+        }
+
+        public Result<Guid> SaveSubmission(SubmissionInput input, Guid UserId)
+        {
+            if (input == null || string.IsNullOrWhiteSpace(input.Code) || string.IsNullOrWhiteSpace(input.Language))
+                return Result.Fail<Guid>("Code and language's name cannot be empty.");
+
+            var submission = new Submission
+            {
+                Language = input.Language,
+                Code = input.Code,
+                AssignmentId = input.AssignmentId,
+                UserId = UserId,
+            };
+
+            context.Submissions.Add(submission);
+            context.SaveChanges();
+
+            return Result.Ok(submission.Id);
+        }
+
+        public Result<List<Submission>> GetAllSubmissions()
+        {
+            var submissions = context.Submissions.Include(x => x.User).Include(x => x.Assignment).ToList();
+            return Result.Ok(submissions);
         }
     }
 }
