@@ -84,10 +84,21 @@ public class CodeController : Controller
     [HttpPost("/Code/Submission/")]
     [Authorize]
     [IgnoreAntiforgeryToken]
-    public IActionResult SubmitSolution([FromBody] SubmissionInput input)
+    public async Task<IActionResult> SubmitSolution([FromBody] SubmissionInput input)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = _CodeService.SaveSubmission(input, Guid.Parse(userId));
+
+        if (result.Success)
+        {
+            var execution = await _CodeService.ExecuteCode(result.Value);
+
+            if (execution.Success)
+            {
+                await _CodeService.UpdateSubmission(result.Value, execution.Value);
+            }
+        }
+
         return Ok();
     }
 

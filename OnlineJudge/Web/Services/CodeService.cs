@@ -10,10 +10,12 @@ namespace OnlineJudge.Services
     public class CodeService
     {
         private readonly Context context;
+        private readonly ICodeExecutorService executor;
 
-        public CodeService(Context context)
+        public CodeService(Context context, ICodeExecutorService executor)
         {
             this.context = context;
+            this.executor = executor;
         }
 
         public Result<Guid> Add(ParsedDocument doc)
@@ -61,15 +63,15 @@ namespace OnlineJudge.Services
             return Result.Ok(assignments);
         }
 
-        public Result<Guid> SaveSubmission(SubmissionInput input, Guid UserId)
+        public Result<Submission> SaveSubmission(SubmissionInput input, Guid UserId)
         {
             if (input == null || string.IsNullOrWhiteSpace(input.Code) || string.IsNullOrWhiteSpace(input.Language))
-                return Result.Fail<Guid>("Code and language's name cannot be empty.");
+                return Result.Fail<Submission>("Code and language's name cannot be empty.");
 
             var submission = new Submission
             {
                 Language = input.Language,
-                Code = input.Code,
+                Code = input.Code.ReplaceLineEndings(),
                 AssignmentId = input.AssignmentId,
                 UserId = UserId,
             };
@@ -77,13 +79,32 @@ namespace OnlineJudge.Services
             context.Submissions.Add(submission);
             context.SaveChanges();
 
-            return Result.Ok(submission.Id);
+            return Result.Ok(submission);
         }
 
         public Result<List<Submission>> GetAllSubmissions()
         {
-            var submissions = context.Submissions.Include(x => x.User).Include(x => x.Assignment).ToList();
+            var submissions = context.Submissions.Include(x => x.User).Include(x => x.Assignment).Include(x => x.Result).ToList();
             return Result.Ok(submissions);
+        }
+
+        public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission)
+        {
+            var result = await executor.TryExecute(submission.Language, submission.Code);
+
+            return result;
+        }
+
+        internal async Task UpdateSubmission(Submission submission, SubmissionResult result)
+        {
+            context.Attach(submission);
+            submission.Result = result;
+            submission.Executed = true;
+            context.Entry(result).State = EntityState.Added;
+            context.Entry(submission).State = EntityState.Modified;
+            context.Entry(submission).Reference(nameof(Submission.Result)).IsModified = true;
+            context.Entry(submission).Property(nameof(Submission.Executed)).IsModified = true;
+            await context.SaveChangesAsync();
         }
     }
 }

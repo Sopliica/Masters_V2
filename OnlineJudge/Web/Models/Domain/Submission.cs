@@ -17,5 +17,9 @@
         public User User { get; set; }
 
         public Guid UserId { get; set; }
+
+        public bool Executed { get; set; }
+
+        public SubmissionResult? Result { get; set; }
     }
 }

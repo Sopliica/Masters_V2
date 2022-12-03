@@ -18,16 +18,34 @@
                 <th scope="col">Language</th>
                 <th scope="col">Submitted At</th>
                 <th scope="col">Submitted Code</th>
+                <th scope="col">Executed</th>
+                <th scope="col">Execution Time</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var submission in Model)
             {
-                <tr>
+                var color = "green";
+
+                if (submission.Executed == false || submission.Result == null)
+                {
+                    color = "red";
+                }
+                
+                <tr style="background-color:@color">
                     <th scope="row">@submission.Assignment.Title</th>
                     <td>@submission.Language</td>
                     <td>@submission.Submitted</td>
                     <td>@submission.Code</td>
+                    <td>@submission.Executed</td>
+                    @if (submission.Result != null)
+                    {
+                        <td>@submission.Result.Time</td>
+                    }
+                    else
+                    {
+                        <td>N/A</td>
+                    }
                 </tr>
             }
         </tbody>

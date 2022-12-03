@@ -165,11 +165,9 @@ namespace OnlineJudge.Parsing
 
         private static List<string> SplitToLines(string s)
         {
-            return s.Split
-            (
-                new string[] { "\r\n", "\r", "\n", Environment.NewLine },
-                StringSplitOptions.None
-            ).ToList();
+            return s.ReplaceLineEndings()
+                    .Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                    .ToList();
         }
     }
 }

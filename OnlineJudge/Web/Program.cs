@@ -13,6 +13,7 @@ builder.Services.AddDbContext<Context>(options => options.UseSqlite("filename=db
 builder.Services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddTransient<AccountService>();
 builder.Services.AddTransient<CodeService>();
+builder.Services.AddTransient<ICodeExecutorService, GodboltCodeExecutor>();
 
 builder.Services.AddControllersWithViews(options =>
 {
