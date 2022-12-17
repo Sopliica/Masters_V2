@@ -11,9 +11,18 @@
         </select>
         <br />
         <textarea name="code" id="code" placeholder="Paste your code here..."></textarea>
-        <div id="upload_btn">
-            <button type="button" class="btn btn-success" onclick="SendCode()">Submit your code</button>
-        </div>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div id="upload_btn">
+                <button type="button" class="btn btn-success" onclick="SendCode()">Submit your code</button>
+            </div>
+        }
+        else
+        {
+            <div id="upload_btn">
+                <a class="btn btn-success" href="/Account/SignIn">Sign In</a>
+            </div>
+        }
     </form>
 </div>
 
