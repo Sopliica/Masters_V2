@@ -55,7 +55,7 @@ namespace OnlineJudge.Parsing
 
             var doc = new ParsedDocument
             {
-                Title = _titleBuilder.ToString(),
+                Title = _titleBuilder.ToString().TrimEnd(),
                 Description = _descriptionBuilder.ToString().TrimEnd(),
                 TimeLimitSeconds = _timeLimit.Value,
                 MemoryLimitMB = _memoryLimit.Value
@@ -67,16 +67,16 @@ namespace OnlineJudge.Parsing
         private Result Validate()
         {
             if (_timeLimit == null)
-                _Errors.Add("Time limit was not specified");
+                _Errors.Add($"Time limit was not specified. Define time limit using \"{TIME_SYNTAX}\" syntax.");
 
             if (_memoryLimit == null)
-                _Errors.Add("Memory limit was not specified");
+                _Errors.Add($"Memory limit was not specified. Define memory limit using \"{MEMORY_SYNTAX}\" syntax.");
 
             if (_titleBuilder.Length == 0)
-                _Errors.Add("Title was not specified");
+                _Errors.Add($"Title was not specified. Define Title using \"{TITLE_SYNTAX}\" syntax.");
 
             if (_descriptionBuilder.Length == 0)
-                _Errors.Add("Description was not specified");
+                _Errors.Add($"Description was not specified. Define description using \"{DESCRIPTION_SYNTAX}\" syntax.");
 
             if (_Errors.Any())
                 return Result.Fail(string.Join(Environment.NewLine, _Errors));
@@ -91,44 +91,44 @@ namespace OnlineJudge.Parsing
             {
                 case ParsingState.Title:
                 {
-                        _titleBuilder.Append(line);
-                        return;
+                    _titleBuilder.AppendLine(line);
+                    return;
                 }
                 case ParsingState.Description:
                 {
-                        _descriptionBuilder.AppendLine(line);
-                        return;
+                    _descriptionBuilder.AppendLine(line);
+                    return;
                 }
                 case ParsingState.TimeLimit:
-                    {
-                        if (string.IsNullOrWhiteSpace(line.Trim()))
-                            return;
-
-                        if (int.TryParse(line, out var val))
-                        {
-                            _timeLimit = val;
-                        }
-                        else
-                        {
-                            _Errors.Add($"Cannot read Time Limit's value as int. Value: '{line}'.");
-                        }
+                {
+                    if (string.IsNullOrWhiteSpace(line.Trim()))
                         return;
+
+                    if (int.TryParse(line, out var val))
+                    {
+                        _timeLimit = val;
+                    }
+                    else
+                    {
+                        _Errors.Add($"Cannot read Time Limit's value as int. Value: '{line}'.");
+                    }
+                    return;
                 }
                 case ParsingState.MemoryLimit:
-                    {
-                        if (string.IsNullOrWhiteSpace(line.Trim()))
-                            return;
-
-                        if (int.TryParse(line, out var val))
-                        {
-                            _memoryLimit = val;
-                        }
-                        else
-                        {
-                            _Errors.Add($"Cannot read Memory Limit value as int. Value: '{line}'.");
-                        }
+                {
+                    if (string.IsNullOrWhiteSpace(line.Trim()))
                         return;
+
+                    if (int.TryParse(line, out var val))
+                    {
+                        _memoryLimit = val;
                     }
+                    else
+                    {
+                        _Errors.Add($"Cannot read Memory Limit value as int. Value: '{line}'.");
+                    }
+                    return;
+                }
                 case ParsingState.None:
                 {
                     return;

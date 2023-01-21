@@ -1,9 +1,26 @@
-﻿TITLE:  Test
+﻿TITLE: Test - When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are
+  \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]
+DESC: 
 
-DESC: Napisz program:
-.
-
-.
+\[
+\begin{array}{|c|c|c|}
+\hline
+  \text{Set} & \text{Operation} & \text{Identity} \\ 
+\hline
+   \mathbb{Z} & + & 0 \\
+\hline
+   \mathbb{Q} & + & 0 \\
+\hline
+   \mathbb{R} & + & 0 \\ 
+\hline
+   \mathbb{Z} & \times & 1 \\
+\hline
+   \mathbb{Q} & \times & 1 \\
+\hline
+   \mathbb{R} & \times & 1 \\ 
+\hline
+\end{array}
+\]
 TIME: 10
 
 MEMORY: 15

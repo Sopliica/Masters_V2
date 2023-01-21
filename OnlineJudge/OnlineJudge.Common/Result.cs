@@ -29,12 +29,12 @@ public class Result
 
     public static Result Ok()
     {
-        return new Result(true, String.Empty);
+        return new Result(true, string.Empty);
     }
 
     public static Result<T> Ok<T>(T value)
     {
-        return new Result<T>(value, true, String.Empty);
+        return new Result<T>(value, true, string.Empty);
     }
 
     public static Result Combine(params Result[] results)
