@@ -55,7 +55,8 @@ namespace OnlineJudge.Services
                 }
                 else
                 {
-                    return Result.Fail<SubmissionResult>($"Error: {string.Join(",", output.execResult.stderr)}");
+                    var errMessage = $"Error: {string.Join(",", output.execResult.stderr) + string.Join(",", output.stderr)}";
+                    return new Result<SubmissionResult>(new SubmissionResult(errMessage, 0), false, errMessage);
                 }
             }
             else

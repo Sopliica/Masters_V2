@@ -111,11 +111,11 @@ namespace OnlineJudge.Services
             return result;
         }
 
-        internal async Task UpdateSubmission(Submission submission, SubmissionResult result)
+        internal async Task UpdateSubmission(bool success, Submission submission, SubmissionResult result)
         {
             context.Attach(submission);
             submission.Result = result;
-            submission.Executed = true;
+            submission.Executed = success;
             context.Entry(result).State = EntityState.Added;
             context.Entry(submission).State = EntityState.Modified;
             context.Entry(submission).Reference(nameof(Submission.Result)).IsModified = true;

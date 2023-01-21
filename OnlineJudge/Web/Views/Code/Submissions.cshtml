@@ -18,8 +18,11 @@
                 <th scope="col">Language</th>
                 <th scope="col">Submitted At</th>
                 <th scope="col">Submitted Code</th>
-                <th scope="col">Executed</th>
                 <th scope="col">Execution Time</th>
+                @if (User.IsInRole(Roles.Administrator))
+                {
+                    <th scope="col">Code Output</th>
+                }
             </tr>
         </thead>
         <tbody>
@@ -35,16 +38,12 @@
                 <tr style="background-color:@color">
                     <th scope="row">@submission.Assignment.Title</th>
                     <td>@submission.Language</td>
-                    <td>@submission.Submitted</td>
-                    <td><a href="/Code/Raw/@submission.Id">Click</a></td>
-                    <td>@submission.Executed</td>
-                    @if (submission.Result != null)
+                    <td>@submission.Submitted.ToString("yyyy-MM-dd")</td>
+                    <td><a href="/Code/Raw/@submission.Id" target="_blank">Click</a></td>
+                    <td>@(submission.Result?.Time.ToString() ?? "N/A")</td>
+                    @if (User.IsInRole(Roles.Administrator))
                     {
-                        <td>@submission.Result.Time</td>
-                    }
-                    else
-                    {
-                        <td>N/A</td>
+                        <td><a href="/Code/Output/@submission.Id" target="_blank">Click</a></td>
                     }
                 </tr>
             }

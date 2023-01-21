@@ -118,11 +118,7 @@ public class CodeController : Controller
         if (result.Success)
         {
             var execution = await _CodeService.ExecuteCode(result.Value);
-
-            if (execution.Success)
-            {
-                await _CodeService.UpdateSubmission(result.Value, execution.Value);
-            }
+            await _CodeService.UpdateSubmission(execution.Success, result.Value, execution.Value);
         }
 
         return Ok();
@@ -142,6 +138,17 @@ public class CodeController : Controller
 
         if (result.Success)
             return Ok(result.Value.Code);
+        else
+            return NotFound("Not Found");
+    }
+
+    [HttpGet("/Code/Output/{Id}")]
+    public IActionResult CodeOutput(Guid Id)
+    {
+        var result = _CodeService.GetSubmission(Id);
+
+        if (result.Success)
+            return result.Value.Result != null ? Ok(result.Value.Result.Output) : Ok("N/A");
         else
             return NotFound("Not Found");
     }
