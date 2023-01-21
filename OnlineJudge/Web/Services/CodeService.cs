@@ -102,7 +102,7 @@ namespace OnlineJudge.Services
                 .Include(x => x.Result)
                 .FirstOrDefault(x => x.Id == Id);
 
-            return submission == null ? Result.Fail<Submission>("Submission not found" : Result.Ok(submission);
+            return submission == null ? Result.Fail<Submission>("Submission not found") : Result.Ok(submission);
         }
 
         public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission)
