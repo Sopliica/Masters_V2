@@ -6,6 +6,8 @@
 
         public string Language { get; set; }
 
+        public string Compiler { get; set; }
+
         public string Code { get; set; }
 
         public DateTime Submitted { get; private set; } = DateTime.UtcNow;

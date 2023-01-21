@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using OnlineJudge.Services;
+﻿using OnlineJudge.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace OnlineJudge.Controllers;
 
@@ -14,7 +14,7 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        var tasks = _cs.GetAllTasks();
+        var tasks = _cs.GetAllAssignments();
         return View(tasks.Value);
     }
 }

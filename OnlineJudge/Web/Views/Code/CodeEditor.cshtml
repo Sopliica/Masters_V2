@@ -3,14 +3,47 @@
 
 <div id="CodeEditor">
     <form>
-        <select name="lang" id="lang">
-            @foreach (var lang in Model.AvailableLanguages)
+        <script>
+            function changedLang(selectObject) {
+              var value = selectObject.value;
+              document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
+              document.getElementsByName("compiler_dropdown").forEach(x => x.style.display = "none");
+              document.getElementById("compilers_" + value).style.display = "";
+            }
+        </script>
+
+        @{
+            var data = Model.AvailableLanguages.OrderBy(x => x.LanguageName).GroupBy(x => x.LanguageName).ToList();
+        }
+
+        Language: 
+        <select id="langs_dropdown" name="lang" onchange="changedLang(this)">
+            @foreach (var entry in data)
             {
-                <option value="@lang">@lang</option>
+                <option value="@entry.Key">@entry.Key</option>
             }
         </select>
+        Compiler:
+        @for (int i = 0; i < data.Count; i++)
+        {
+            var entry = data[i];
+            var style = i == 0 ? "" : "display:none";
+            <select id="compilers_@entry.Key" name="compiler_dropdown" style="@style">
+                <option selected="selected" value="-">-</option>
+                @foreach(var comp in entry)
+                {
+                    <option value="@comp.CompilerId">@comp.CompilerName</option>
+                }
+            </select>
+        }
+        <script>
+            document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
+        </script>
+        <br />
         <br />
         <textarea name="code" id="code" placeholder="Paste your code here..."></textarea>
+        <br />
+        <br />
         @if (User.Identity.IsAuthenticated)
         {
             <div id="upload_btn">
@@ -42,10 +75,11 @@
 
 <script>
     function SendCode() {
-        var lang = document.getElementById("lang").value;
+        var lang = document.getElementById("langs_dropdown").value;
         var code = document.getElementById("code").value;
+        var comp = document.getElementById("compilers_" + lang).value;
 
-        let data = { Language: lang, Code: code, AssignmentId: '@Model.TaskId' };
+        let data = { Language: lang, Compiler: comp, Code: code, AssignmentId: '@Model.AssignmentId' };
 
         fetch("/Code/Submission/", 
         {

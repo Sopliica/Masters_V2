@@ -7,10 +7,8 @@
     ViewData["Title"] = "View";
 }
 
-<script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6" ></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 @if (Model.Success)
 {
@@ -28,7 +26,7 @@
         <br>
         <br>
         <hr class="fieldName">
-        @await Html.PartialAsync("CodeEditor", new CodeEditorParams { TaskId = @Model.Value.Id, AvailableLanguages = Model.Value.AvailableLanguages})
+        @await Html.PartialAsync("CodeEditor", new CodeEditorParams { AssignmentId = @Model.Value.Id, AvailableLanguages = Model.Value.AvailableLanguages})
     </div>
 }
 else

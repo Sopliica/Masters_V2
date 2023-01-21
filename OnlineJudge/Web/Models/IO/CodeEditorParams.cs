@@ -1,9 +1,11 @@
-﻿namespace OnlineJudge.Models.IO
+﻿using OnlineJudge.Miscs;
+
+namespace OnlineJudge.Models.IO
 {
     public class CodeEditorParams
     {
-        public Guid TaskId { get; set; }
+        public Guid AssignmentId { get; set; }
 
-        public List<string> AvailableLanguages { get; set; } = new List<string>();
+        public List<LanguageDetails> AvailableLanguages { get; set; } = new List<LanguageDetails>();
     }
 }

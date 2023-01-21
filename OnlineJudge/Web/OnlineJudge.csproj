@@ -18,8 +18,4 @@
     <ProjectReference Include="..\OnlineJudge.Parser\OnlineJudge.Parser.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Miscs\" />
-  </ItemGroup>
-
 </Project>

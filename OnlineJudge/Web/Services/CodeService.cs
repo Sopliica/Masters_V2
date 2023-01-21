@@ -34,7 +34,7 @@ namespace OnlineJudge.Services
             return Result.Ok(assignment.Id);
         }
 
-        public Result<Assignment> GetTask(Guid Id)
+        public Result<Assignment> GetAssignment(Guid Id)
         {
             var assignment = context.Assignments.FirstOrDefault(x => x.Id == Id);
 
@@ -57,7 +57,7 @@ namespace OnlineJudge.Services
             return Result.Ok();
         }
 
-        public Result<List<Assignment>> GetAllTasks()
+        public Result<List<Assignment>> GetAllAssignments()
         {
             var assignments = context.Assignments.Where(x => !x.IsDeleted).ToList();
             return Result.Ok(assignments);
@@ -73,6 +73,7 @@ namespace OnlineJudge.Services
                 Language = input.Language,
                 Code = input.Code.ReplaceLineEndings(),
                 AssignmentId = input.AssignmentId,
+                Compiler = input.Compiler,
                 UserId = UserId,
             };
 
@@ -84,14 +85,29 @@ namespace OnlineJudge.Services
 
         public Result<List<Submission>> GetAllSubmissions()
         {
-            var submissions = context.Submissions.Include(x => x.User).Include(x => x.Assignment).Include(x => x.Result).ToList();
+            var submissions = context.Submissions
+                .Include(x => x.User)
+                .Include(x => x.Assignment)
+                .Include(x => x.Result)
+                .ToList();
+
             return Result.Ok(submissions);
+        }
+
+        public Result<Submission> GetSubmission(Guid Id)
+        {
+            var submission = context.Submissions
+                .Include(x => x.User)
+                .Include(x => x.Assignment)
+                .Include(x => x.Result)
+                .FirstOrDefault(x => x.Id == Id);
+
+            return submission == null ? Result.Fail<Submission>("Submission not found" : Result.Ok(submission);
         }
 
         public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission)
         {
-            var result = await executor.TryExecute(submission.Language, submission.Code);
-
+            var result = await executor.TryExecute(submission.Language, submission.Compiler, submission.Code);
             return result;
         }
 

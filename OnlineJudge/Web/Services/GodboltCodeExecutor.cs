@@ -1,20 +1,24 @@
-﻿using Newtonsoft.Json;
+﻿using RestSharp;
+using Newtonsoft.Json;
 using OnlineJudge.Miscs;
-using OnlineJudge.Models.Domain;
 using OnlineJudge.Models.IO;
-using RestSharp;
-using System.Text.Json.Serialization;
+using OnlineJudge.Models.Domain;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace OnlineJudge.Services
 {
     public class GodboltCodeExecutor : ICodeExecutorService
     {
-        public async Task<Result<SubmissionResult>> TryExecute(string lang, string code)
+        private RestClient _client = new RestClient("https://godbolt.org/");
+        private readonly IMemoryCache _cache;
+
+        public GodboltCodeExecutor(IMemoryCache cache)
         {
-            var client = new RestClient("https://godbolt.org/");
+            this._cache = cache;
+        }
 
-            var comp = "dotnet700csharp";
-
+        public async Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code)
+        {
             var requestData = new GodboltRequest
             {
                 lang = lang,
@@ -35,14 +39,15 @@ namespace OnlineJudge.Services
                 }
             };
 
-            var request = new RestRequest($"/api/compiler/{comp}/compile", Method.Post);
+            var request = new RestRequest($"/api/compiler/{compiler}/compile", Method.Post);
             request.AddJsonBody(requestData);
 
-            var response = await client.PostAsync(request);
-            var output = JsonConvert.DeserializeObject<GodboltOutput>(response.Content);
-            Console.WriteLine(JsonConvert.SerializeObject(output, Formatting.Indented));
+            var response = await _client.PostAsync(request);
             if (response.IsSuccessStatusCode)
             {
+                var output = JsonConvert.DeserializeObject<GodboltOutput>(response.Content);
+                Console.WriteLine(JsonConvert.SerializeObject(output, Formatting.Indented));
+
                 if (output.execResult.code == 0)
                 {
                     var stdout = string.Join(",", output.execResult.stdout.Select(x => x.text));
@@ -55,8 +60,30 @@ namespace OnlineJudge.Services
             }
             else
             {
+                Console.WriteLine(response.Content);
                 return Result.Fail<SubmissionResult>("Network error");
             }
+        }
+
+        public async Task<Result<List<LanguageDetails>>> GetLangsAndCompilers()
+        {
+            const string cacheKey = "LanguagesGodboltCache";
+            if (_cache.TryGetValue<List<LanguageDetails>>(cacheKey, out var list))
+                return Result.Ok(list);
+
+            var langsRequest = new RestRequest($"https://godbolt.org/api/compilers?fields=id,name,lang", Method.Get);
+            langsRequest.AddHeader("Accept", "application/json");
+
+            var langsResponse = await _client.GetAsync<List<GodboltCompilersAndLangsList>>(langsRequest);
+
+            if (langsResponse == null)
+            {
+                return Result.Fail<List<LanguageDetails>>("Unable to load languages list");
+            }
+
+            var mapped = langsResponse.Select(x => new LanguageDetails { CompilerName = x.name, LanguageName = x.lang, CompilerId = x.id }).ToList();
+            _cache.Set(cacheKey, mapped, TimeSpan.FromHours(24));
+            return Result.Ok(mapped);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace OnlineJudge.Models.Domain
+﻿using OnlineJudge.Miscs;
+
+namespace OnlineJudge.Models.Domain
 {
     public class AssignmentViewModel
     {
@@ -29,6 +31,6 @@
 
         public bool IsDeleted { get; set; }
 
-        public List<string> AvailableLanguages { get; set; } = new List<string>();
+        public List<LanguageDetails> AvailableLanguages { get; set; } = new List<LanguageDetails>();
     }
 }
