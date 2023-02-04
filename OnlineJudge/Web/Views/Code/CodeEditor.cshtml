@@ -73,6 +73,8 @@
     }
 </style>
 
+@Html.AntiForgeryToken()
+
 <script>
     function SendCode() {
         var lang = document.getElementById("langs_dropdown").value;
@@ -84,12 +86,28 @@
         fetch("/Code/Submission/", 
         {
             method: "POST",
-            headers: { 'Content-Type': 'application/json' },
+            headers: 
+            { 
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.getElementsByName('__RequestVerificationToken')[0].value
+            },
             body: JSON.stringify(data)
         })
-        .then(res => 
+        .then((res) => 
         {
-            console.log("Request complete! response:", res);
+            if (res.ok)
+                return res.json();
+
+            return Promise.reject(res);
+        })
+        .then((response) => {
+            window.location.href = "/Code/Submission/" + response.id;
+        })
+        .catch((res) => 
+        {
+            res.text().then(function (result) {
+                alert("Error: " + result);
+            });
         });
     }
 </script>

@@ -51,12 +51,12 @@ namespace OnlineJudge.Services
                 if (output.execResult.code == 0)
                 {
                     var stdout = string.Join(",", output.execResult.stdout.Select(x => x.text));
-                    return Result.Ok(new SubmissionResult(stdout, Convert.ToInt32(output.execResult.execTime)));
+                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Success, stdout, Convert.ToInt32(output.execResult.execTime)));
                 }
                 else
                 {
                     var errMessage = $"Error: {string.Join(",", output.execResult.stderr) + string.Join(",", output.stderr)}";
-                    return new Result<SubmissionResult>(new SubmissionResult(errMessage, 0), false, errMessage);
+                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Failed, errMessage, Convert.ToInt32(output.execResult.execTime)));
                 }
             }
             else

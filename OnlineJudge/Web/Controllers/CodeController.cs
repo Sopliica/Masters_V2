@@ -8,6 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using OnlineJudge.Models.Domain;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace OnlineJudge.Controllers;
 
@@ -39,17 +40,17 @@ public class CodeController : Controller
             // some default
             vm.AvailableLanguages = new List<LanguageDetails>
             {
-                new LanguageDetails{LanguageName = "csharp", CompilerName = ".NET (main)" },
-                new LanguageDetails{LanguageName = "csharp", CompilerName = ".NET 7.0.100" },
-                new LanguageDetails{LanguageName = "fsharp", CompilerName = ".NET (main)" },
-                new LanguageDetails{LanguageName = "fsharp", CompilerName = ".NET 7.0.100" },
-                new LanguageDetails{LanguageName = "go", CompilerName = "386 gc (tip)" },
-                new LanguageDetails{LanguageName = "rust", CompilerName = "rustc nightly" },
-                new LanguageDetails{LanguageName = "c", CompilerName = "x86-64 gcc (trunk)" },
-                new LanguageDetails{LanguageName = "c++", CompilerName = "x86-64 gcc (trunk)" },
-                new LanguageDetails{LanguageName = "java", CompilerName = "jdk 18.0.0" },
-                new LanguageDetails{LanguageName = "kotlin", CompilerName = "kotlinc 1.8.0" },
-                new LanguageDetails{LanguageName = "haskell", CompilerName = "x86-64 ghc 9.2.2" },
+                new LanguageDetails { LanguageName = "csharp", CompilerName = ".NET (main)" },
+                new LanguageDetails { LanguageName = "csharp", CompilerName = ".NET 7.0.100" },
+                new LanguageDetails { LanguageName = "fsharp", CompilerName = ".NET (main)" },
+                new LanguageDetails { LanguageName = "fsharp", CompilerName = ".NET 7.0.100" },
+                new LanguageDetails { LanguageName = "go", CompilerName = "386 gc (tip)" },
+                new LanguageDetails { LanguageName = "rust", CompilerName = "rustc nightly" },
+                new LanguageDetails { LanguageName = "c", CompilerName = "x86-64 gcc (trunk)" },
+                new LanguageDetails { LanguageName = "c++", CompilerName = "x86-64 gcc (trunk)" },
+                new LanguageDetails { LanguageName = "java", CompilerName = "jdk 18.0.0" },
+                new LanguageDetails { LanguageName = "kotlin", CompilerName = "kotlinc 1.8.0" },
+                new LanguageDetails { LanguageName = "haskell", CompilerName = "x86-64 ghc 9.2.2" },
             };
         }
 
@@ -68,7 +69,6 @@ public class CodeController : Controller
     public IActionResult Delete([FromRoute] Guid Id)
     {
         var assignment = _CodeService.GetAssignment(Id);
-
         return View(assignment);
     }
 
@@ -109,47 +109,33 @@ public class CodeController : Controller
 
     [HttpPost("/Code/Submission/")]
     [Authorize]
-    [IgnoreAntiforgeryToken]
-    public async Task<IActionResult> SubmitSolution([FromBody] SubmissionInput input)
+    public IActionResult SubmitSubmission([FromBody] SubmissionInput input)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = _CodeService.SaveSubmission(input, Guid.Parse(userId));
+        return result.Success ? Ok(new { Id = result.Value.Id }) : BadRequest();
+    }
 
-        if (result.Success)
+    [Authorize]
+    [HttpGet("/Code/Submission/{Id}")]
+    public IActionResult GetSubmission(Guid Id)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var isAdmin = this.User.IsInRole(Roles.Administrator);
+        var result = _CodeService.GetSubmission(Id, userId, isAdmin);
+
+        if (!result.Success)
         {
-            var execution = await _CodeService.ExecuteCode(result.Value);
-            await _CodeService.UpdateSubmission(execution.Success, result.Value, execution.Value);
+            return View("Error", result.Error);
         }
 
-        return Ok();
+        return View("SubmissionView", result.Value);
     }
 
     [HttpGet]
-    public IActionResult Submissions()
+    public IActionResult History()
     {
         var tasks = _CodeService.GetAllSubmissions();
         return View(tasks.Value);
-    }
-
-    [HttpGet("/Code/Raw/{Id}")]
-    public IActionResult RawCode(Guid Id)
-    {
-        var result = _CodeService.GetSubmission(Id);
-
-        if (result.Success)
-            return Ok(result.Value.Code);
-        else
-            return NotFound("Not Found");
-    }
-
-    [HttpGet("/Code/Output/{Id}")]
-    public IActionResult CodeOutput(Guid Id)
-    {
-        var result = _CodeService.GetSubmission(Id);
-
-        if (result.Success)
-            return result.Value.Result != null ? Ok(result.Value.Result.Output) : Ok("N/A");
-        else
-            return NotFound("Not Found");
     }
 }

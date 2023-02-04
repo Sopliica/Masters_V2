@@ -6,9 +6,13 @@ using OnlineJudge.Consts;
 using OnlineJudge.Database;
 using OnlineJudge.Models.Domain;
 using OnlineJudge.Services;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog();
 builder.Services.AddDbContext<Context>(options => options.UseSqlite("filename=db.db"));
 builder.Services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddTransient<AccountService>();

@@ -94,7 +94,7 @@ namespace OnlineJudge.Services
             return Result.Ok(submissions);
         }
 
-        public Result<Submission> GetSubmission(Guid Id)
+        public Result<Submission> GetSubmission(Guid Id, Guid RequestingUserId, bool isAdmin)
         {
             var submission = context.Submissions
                 .Include(x => x.User)
@@ -102,7 +102,13 @@ namespace OnlineJudge.Services
                 .Include(x => x.Result)
                 .FirstOrDefault(x => x.Id == Id);
 
-            return submission == null ? Result.Fail<Submission>("Submission not found") : Result.Ok(submission);
+            if (submission == null)
+                return Result.Fail<Submission>("Submission not found");
+
+            if (submission.UserId != RequestingUserId && !isAdmin)
+                return Result.Fail<Submission>("You can only see details of your submissions");
+
+            return Result.Ok(submission);
         }
 
         public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission)
@@ -111,15 +117,13 @@ namespace OnlineJudge.Services
             return result;
         }
 
-        internal async Task UpdateSubmission(bool success, Submission submission, SubmissionResult result)
+        internal async Task UpdateSubmissionResult(Submission submission, SubmissionResult result)
         {
             context.Attach(submission);
             submission.Result = result;
-            submission.Executed = success;
             context.Entry(result).State = EntityState.Added;
             context.Entry(submission).State = EntityState.Modified;
             context.Entry(submission).Reference(nameof(Submission.Result)).IsModified = true;
-            context.Entry(submission).Property(nameof(Submission.Executed)).IsModified = true;
             await context.SaveChangesAsync();
         }
     }

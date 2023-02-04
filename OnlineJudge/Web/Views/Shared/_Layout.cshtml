@@ -25,7 +25,7 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Code" asp-action="Submissions">Submissions</a>
+                            <a class="nav-link" asp-area="" asp-controller="Code" asp-action="History">Submissions History</a>
                         </li>
                         @if (this.User.Identity.IsAuthenticated && this.User.IsInRole(Roles.Administrator))
                         {
@@ -38,7 +38,9 @@
                         @if (this.User.Identity.IsAuthenticated)
                         {
                             <b>Witaj, @(this.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value)!</b>
+                            <br />
                             <b>Rola: @string.Join(",", this.User.Claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value))</b>
+                            <br />
                             <a href="/Account/Logout">Wyloguj się</a>
                         }
                         else

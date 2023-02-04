@@ -6,7 +6,7 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">History of Submissions:</h1>
+    <h1 class="display-4">History of your submissions:</h1>
 </div>
 
 @if (Model.Any())
@@ -17,12 +17,7 @@
                 <th scope="col">Assignment Title</th>
                 <th scope="col">Language</th>
                 <th scope="col">Submitted At</th>
-                <th scope="col">Submitted Code</th>
-                <th scope="col">Execution Time</th>
-                @if (User.IsInRole(Roles.Administrator))
-                {
-                    <th scope="col">Code Output</th>
-                }
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -30,7 +25,7 @@
             {
                 var color = "green";
 
-                if (submission.Executed == false || submission.Result == null)
+                if (submission.Result == null || submission.Result.ExecutionStatus == ExecutionStatusEnum.Failed)
                 {
                     color = "red";
                 }
@@ -38,13 +33,10 @@
                 <tr style="background-color:@color">
                     <th scope="row">@submission.Assignment.Title</th>
                     <td>@submission.Language</td>
-                    <td>@submission.Submitted.ToString("yyyy-MM-dd")</td>
-                    <td><a href="/Code/Raw/@submission.Id" target="_blank">Click</a></td>
-                    <td>@(submission.Result?.Time.ToString() ?? "N/A")</td>
-                    @if (User.IsInRole(Roles.Administrator))
-                    {
-                        <td><a href="/Code/Output/@submission.Id" target="_blank">Click</a></td>
-                    }
+                    <td>@submission.Submitted.ToString("yyyy-MM-dd hh:mm")</td>
+                    <td>
+                        <a class="btn btn-info" asp-area="" asp-controller="Code" asp-action="GetSubmission" asp-route-Id="@submission.Id">Details</a>
+                    </td>
                 </tr>
             }
         </tbody>

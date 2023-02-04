@@ -10,7 +10,7 @@
 
         public string Code { get; set; }
 
-        public DateTime Submitted { get; private set; } = DateTime.UtcNow;
+        public DateTime Submitted { get; private set; } = DateTime.Now;
 
         public Assignment Assignment { get; set; }
 
@@ -19,8 +19,6 @@
         public User User { get; set; }
 
         public Guid UserId { get; set; }
-
-        public bool Executed { get; set; }
 
         public SubmissionResult? Result { get; set; }
     }

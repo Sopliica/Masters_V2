@@ -1,0 +1,116 @@
+﻿@using OnlineJudge.Models.Domain
+@using OnlineJudge.Miscs
+@using OnlineJudge.Models.IO
+@using OnlineJudge.Parsing
+@model Submission
+@{
+    ViewData["Title"] = "Submission Details";
+}
+
+<div id="content_box">
+    <div style="text-align:center">
+        <b class="fieldName">Assignment Details</b>
+    </div>
+    <br>
+    <br>
+    <b class="fieldName">Title: </b>@Model.Assignment.Title
+    <br>
+    <br>
+    <b class="fieldName">Description: </b>@Model.Assignment.Description
+    <br>
+    <br>
+    <b class="fieldName">Time Limit (seconds): </b>@Model.Assignment.TimeLimitSeconds
+    <br>
+    <br>
+    <b class="fieldName">Memory Limit (MB): </b>@Model.Assignment.MemoryLimitMB
+    <br>
+    <br>
+    <hr class="fieldName">   
+    <div style="text-align:center">
+        <b class="fieldName">Submission Result</b>
+    </div>
+    @{
+        var status = "";
+        var color = "";
+        var isSuccessful = false;
+
+        if (Model.Result == null || Model.Result.ExecutionStatus == ExecutionStatusEnum.Queued)
+        {
+            status = "Waiting for Execution";
+            color = "#dbab0a";
+        }
+        else
+        {
+            if (Model.Result.ExecutionStatus == ExecutionStatusEnum.Queued)
+            {
+                status = "Successfully compiled and executed";
+                color = "#28a745";
+                isSuccessful = true;
+            }
+            else
+            {
+                status = "FAIL";
+                color = "#d73a49";
+            }
+        }
+    }
+    <span class="normal-text">Compilation Status: <b class="fieldName" style="color:@color">@status</b></span>
+    <br>
+    <span class="normal-text">Execution Time: <b class="fieldName">@(isSuccessful ? Model.Result.Time.ToString() : "N/A")</b></span>
+    <br>
+    <br>
+    <div style="text-align:center">
+        <b class="fieldName">Submitted Code:</b>
+    </div>
+    <script>
+        function copy()
+        {
+            navigator.clipboard.writeText(document.getElementById("codeArea").value);
+        }
+    </script>
+    <div>
+        <button id="copyButton" type="button" class="btn" onclick="copy()">Copy Code</button>
+    </div>
+    <textarea id="codeArea" autocomplete="off" readonly="readonly">@Model.Code</textarea>
+    <br>
+    <br>
+</div>
+
+<style>
+    .normal-text
+    {
+        color: white;
+    }
+
+    #copyButton
+    {
+        background-color: rgb(0, 123, 255);
+        color: white;
+        font-weight: bold;
+        float: right;
+        margin-bottom: 5px;
+    }
+
+    #codeArea
+    {
+        width: 100%;
+        height: 500px;
+    }
+
+    .fieldName
+    {
+        color: rgb(255, 255, 255);
+    }
+
+    #content_box
+    {
+        margin-top: 15px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px;
+        color: rgb(126, 231, 135);
+    }
+</style>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
