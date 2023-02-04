@@ -16,6 +16,9 @@ if (parsed.Success)
     Console.WriteLine("____________________");
     Console.WriteLine(parsed.Value.MemoryLimitMB);
     Console.WriteLine("____________________");
+    Console.WriteLine("Output(s):");
+    Console.WriteLine(string.Join(Environment.NewLine, parsed.Value.Output.Select(x => $"'{x}'")));
+    Console.WriteLine("____________________");
 }
 else
 {

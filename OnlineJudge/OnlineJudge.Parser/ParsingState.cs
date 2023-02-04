@@ -6,6 +6,7 @@
         Description,
         TimeLimit,
         MemoryLimit,
+        Output,
         None
     }
 }

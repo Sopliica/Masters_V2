@@ -6,6 +6,8 @@
 
         public string Description { get; set; }
 
+        public List<string> Output { get; set; } = new List<string>();
+
         public int TimeLimitSeconds { get; set; }
 
         public int MemoryLimitMB { get; set; }

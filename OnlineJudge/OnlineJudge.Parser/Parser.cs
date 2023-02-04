@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using OnlineJudge.Miscs;
 
 namespace OnlineJudge.Parsing
@@ -9,9 +11,11 @@ namespace OnlineJudge.Parsing
         private const string DESCRIPTION_SYNTAX = "DESC: ";
         private const string TIME_SYNTAX = "TIME: ";
         private const string MEMORY_SYNTAX = "MEMORY: ";
+        private const string OUTPUT_SYNTAX = "OUTPUT: ";
 
         private StringBuilder _titleBuilder = new StringBuilder();
         private StringBuilder _descriptionBuilder = new StringBuilder();
+        private StringBuilder _outputBuilder = new StringBuilder();
 
         private int? _timeLimit;
         private int? _memoryLimit;
@@ -45,7 +49,10 @@ namespace OnlineJudge.Parsing
                     _Lines[_Index] = newState.Value.LineWithoutItsSyntax;
                 }
 
-                HandleState(state);
+                var stateFullyHandled = HandleState(state);
+
+                if (stateFullyHandled)
+                    state = ParsingState.None;
             } while (_Index++ < _Lines.Count - 1);
 
             var result = Validate();
@@ -58,7 +65,8 @@ namespace OnlineJudge.Parsing
                 Title = _titleBuilder.ToString().TrimEnd(),
                 Description = _descriptionBuilder.ToString().TrimEnd(),
                 TimeLimitSeconds = _timeLimit.Value,
-                MemoryLimitMB = _memoryLimit.Value
+                MemoryLimitMB = _memoryLimit.Value,
+                Output = JsonConvert.DeserializeObject<List<string>>(_outputBuilder.ToString())
             };
 
             return Result.Ok(doc);
@@ -78,31 +86,48 @@ namespace OnlineJudge.Parsing
             if (_descriptionBuilder.Length == 0)
                 _Errors.Add($"Description was not specified. Define description using \"{DESCRIPTION_SYNTAX}\" syntax.");
 
+            if (_outputBuilder.Length == 0)
+                _Errors.Add($"Output was not specified. Define output using \"{OUTPUT_SYNTAX}\" syntax.");
+
+            var list = JsonConvert.DeserializeObject<List<string>>(_outputBuilder.ToString());
+
+            if (list == null)
+                _Errors.Add("Output's value is not valid string json array. Try something like: [\"value1\", \"value2\"].");
+
+            if (list != null && list.Count == 0)
+                _Errors.Add("Output list requires to define at least one sample output e.g [\"value1\", \"value2\"].");
+
             if (_Errors.Any())
                 return Result.Fail(string.Join(Environment.NewLine, _Errors));
 
             return Result.Ok();
         }
 
-        private void HandleState(ParsingState state)
+        private bool HandleState(ParsingState state)
         {
             var line = _Lines[_Index];
+
             switch (state)
             {
                 case ParsingState.Title:
                 {
                     _titleBuilder.AppendLine(line);
-                    return;
+                    return false;
                 }
                 case ParsingState.Description:
                 {
                     _descriptionBuilder.AppendLine(line);
-                    return;
+                    return false;
+                }
+                case ParsingState.Output:
+                {
+                    _outputBuilder.AppendLine(line);
+                    return false;
                 }
                 case ParsingState.TimeLimit:
                 {
                     if (string.IsNullOrWhiteSpace(line.Trim()))
-                        return;
+                        return false;
 
                     if (int.TryParse(line, out var val))
                     {
@@ -112,12 +137,12 @@ namespace OnlineJudge.Parsing
                     {
                         _Errors.Add($"Cannot read Time Limit's value as int. Value: '{line}'.");
                     }
-                    return;
+                    return true;
                 }
                 case ParsingState.MemoryLimit:
                 {
                     if (string.IsNullOrWhiteSpace(line.Trim()))
-                        return;
+                        return false;
 
                     if (int.TryParse(line, out var val))
                     {
@@ -127,13 +152,20 @@ namespace OnlineJudge.Parsing
                     {
                         _Errors.Add($"Cannot read Memory Limit value as int. Value: '{line}'.");
                     }
-                    return;
+
+                    return true;
                 }
                 case ParsingState.None:
                 {
-                    return;
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        _Errors.Add($"Value with unknown section - {line}");
+                    }
+                    return true;
                 }
             }
+
+            throw new Exception("unsupported state");
         }
 
         private Result<(ParsingState NewState, string LineWithoutItsSyntax)> DetectStateChange(string line)
@@ -153,6 +185,10 @@ namespace OnlineJudge.Parsing
             else if (line.StartsWith(MEMORY_SYNTAX))
             {
                 return Result.Ok((ParsingState.MemoryLimit, RemoveSyntax(line, MEMORY_SYNTAX)));
+            }
+            else if (line.StartsWith(OUTPUT_SYNTAX))
+            {
+                return Result.Ok((ParsingState.Output, RemoveSyntax(line, OUTPUT_SYNTAX)));
             }
 
             return Result.Fail<(ParsingState NewState, string LineWithoutItsSyntax)>("State change not detected");
