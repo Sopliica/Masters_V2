@@ -1,4 +1,4 @@
-﻿using OnlineJudge.Miscs;
+﻿using OnlineJudge.Models.Miscs;
 
 namespace OnlineJudge.Models.Domain
 {

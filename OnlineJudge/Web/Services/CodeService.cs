@@ -4,6 +4,7 @@ using OnlineJudge.Database;
 using OnlineJudge.Models.Domain;
 using OnlineJudge.Models.IO;
 using Microsoft.EntityFrameworkCore;
+using OnlineJudge.Consts;
 
 namespace OnlineJudge.Services
 {
@@ -67,6 +68,14 @@ namespace OnlineJudge.Services
         {
             if (input == null || string.IsNullOrWhiteSpace(input.Code) || string.IsNullOrWhiteSpace(input.Language))
                 return Result.Fail<Submission>("Code and language's name cannot be empty.");
+
+            var user = context.Users.FirstOrDefault(x => x.Id == UserId);
+
+            if (user == null)
+                return Result.Fail<Submission>("Your account has been not found. Try signing in again.");
+
+            if (user.Role == Roles.NotActivated)
+                return Result.Fail<Submission>("Your account is not activated. Contact administrator to activate your account.");
 
             var submission = new Submission
             {

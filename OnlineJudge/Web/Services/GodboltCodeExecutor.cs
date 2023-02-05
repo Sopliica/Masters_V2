@@ -4,6 +4,7 @@ using OnlineJudge.Miscs;
 using OnlineJudge.Models.IO;
 using OnlineJudge.Models.Domain;
 using Microsoft.Extensions.Caching.Memory;
+using OnlineJudge.Models.Miscs;
 
 namespace OnlineJudge.Services
 {
@@ -64,6 +65,34 @@ namespace OnlineJudge.Services
                 Console.WriteLine(response.Content);
                 return Result.Fail<SubmissionResult>("Network error");
             }
+        }
+
+        public async Task<Result<List<LibraryDetails>>> GetLibraries(string lang)
+        {
+            var cacheKey = $"LibrariesGodboltCache_{lang}";
+
+            if (_cache.TryGetValue<List<LibraryDetails>>(cacheKey, out var list))
+            {
+                Console.WriteLine($"Using Library Cache: {lang}");
+                return Result.Ok(list);
+            }
+
+            var libsRequest = new RestRequest($"https://godbolt.org/api/libraries/" + lang, Method.Get);
+            libsRequest.AddHeader("Accept", "application/json");
+            var libsResponse = await _client.GetAsync<List<LibraryInfo>>(libsRequest);
+
+            var output = libsResponse
+                            .Select(x =>
+                            new LibraryDetails
+                            {
+                                Name = x.name,
+                                Id = x.id,
+                                Versions = x.versions.Select(v => v.version).ToList()
+                            })
+                            .ToList();
+
+            _cache.Set(cacheKey, output, TimeSpan.FromHours(72));
+            return Result.Ok(output);
         }
 
         public async Task<Result<List<LanguageDetails>>> GetLangsAndCompilers()

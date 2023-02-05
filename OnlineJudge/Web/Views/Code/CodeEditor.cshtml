@@ -4,11 +4,104 @@
 <div id="CodeEditor">
     <form>
         <script>
+            let libs = {};
+            let usedlibs = [];
+
+            function uuidv4() {
+              return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+              );
+            }
+
+            redrawUsedLibs()
+            {
+                clearTab("used_libs");
+            }
+
+            function addLib(id, name, version)
+            {
+                usedLibs.push({ id, name, version});
+
+                console.log(usedLibs);
+
+                redrawUsedLibs();
+            }
+
+            function clearTab(id)
+            {
+                var table = document.getElementById(id);
+                var rowCount = table.rows.length;
+
+                for (var i = 1; i < rowCount; i++) {
+                    table.deleteRow(1);
+                }
+            }
+
+            function addLibRow(id, name, versions) {
+                var table = document.getElementById("libs");
+                var row = table.insertRow(1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+
+                cell1.innerText = name;
+
+                var guid = uuidv4();
+                var select = document.createElement("select");
+                select.id = guid;
+
+                for (const val of versions)
+                {
+                    var option = document.createElement("option");
+                    option.value = val;
+                    option.text = val;
+                    select.appendChild(option);
+                }
+
+                cell2.appendChild(select);
+
+                var action = document.createElement("button");
+                action.type = "button";
+                action.className = "btn btn-primary";
+                action.innerText = "Add Library";
+                action.style.height = "50px"
+                action.onclick = function()
+                {
+                    addLib(id, name, document.getElementById(guid).value);
+                }
+                cell3.appendChild(action);
+            }
+
+            function getLibs(lang) {
+                fetch("/Code/Libs/" + lang,
+                {
+                    method: "GET",
+                    headers:
+                    {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                })
+                .then((res) => res.json())
+                .then((data) => 
+                {
+                    libs = data.sort((a, b) => b.name.localeCompare(a.name));
+                    clearTab("libs");
+                    console.log("drawing libs");
+                    for (var i = 0; i < libs.length; i++) {
+                        addLibRow(libs[i].id, libs[i].name, libs[i].versions);
+                    }
+                })
+            }
+
             function changedLang(selectObject) {
               var value = selectObject.value;
+              usedlibs = [];
               document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
               document.getElementsByName("compiler_dropdown").forEach(x => x.style.display = "none");
               document.getElementById("compilers_" + value).style.display = "";
+              getLibs(value);
+              clearTab("used_libs");
             }
         </script>
 
@@ -37,11 +130,46 @@
             </select>
         }
         <script>
-            document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
+            window.onload = function()
+            {
+                document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
+                getLibs("c++");
+                //getLibs(document.getElementById("langs_dropdown").value);
+            }
         </script>
         <br />
         <br />
         <textarea name="code" id="code" placeholder="Paste your code here..."></textarea>
+        <br />
+        <br />
+        <b>Used Libraries:</b>
+        <table id="used_libs" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <br />
+        <br />
+        <b>Available Libraries:</b>
+        <br />
+        <br />
+        <table id="libs" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
         <br />
         <br />
         @if (User.Identity.IsAuthenticated)

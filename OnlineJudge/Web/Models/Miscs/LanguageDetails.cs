@@ -1,4 +1,4 @@
-﻿namespace OnlineJudge.Miscs
+﻿namespace OnlineJudge.Models.Miscs
 {
     public class LanguageDetails
     {

@@ -8,7 +8,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using OnlineJudge.Models.Domain;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore.Query.Internal;
+using OnlineJudge.Models.Miscs;
 
 namespace OnlineJudge.Controllers;
 
@@ -20,7 +20,18 @@ public class CodeController : Controller
     public CodeController(CodeService cs, ICodeExecutorService executor)
     {
         _CodeService = cs;
-        this._executor = executor;
+        _executor = executor;
+    }
+
+    [HttpGet("/Code/Libs/{langName}")]
+    public async Task<IActionResult> View([FromRoute] string langName)
+    {
+        var libsResult = await _executor.GetLibraries(langName);
+
+        if (!libsResult.Success)
+            return Ok(new List<LibraryDetails>());
+
+        return Ok(libsResult.Value);
     }
 
     [HttpGet("/Code/View/{Id}")]
