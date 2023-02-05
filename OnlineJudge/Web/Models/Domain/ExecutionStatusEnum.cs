@@ -2,8 +2,8 @@
 {
     public enum ExecutionStatusEnum
     {
-        Queued,
         Failed,
-        Success
+        Success,
+        NetworkError
     }
 }

@@ -24,7 +24,7 @@ public class CodeController : Controller
     }
 
     [HttpGet("/Code/Libs/{langName}")]
-    public async Task<IActionResult> View([FromRoute] string langName)
+    public async Task<IActionResult> GetLibs([FromRoute] string langName)
     {
         var libsResult = await _executor.GetLibraries(langName);
 
@@ -124,7 +124,7 @@ public class CodeController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var result = _CodeService.SaveSubmission(input, Guid.Parse(userId));
-        return result.Success ? Ok(new { Id = result.Value.Id }) : BadRequest();
+        return result.Success ? Ok(new { Id = result.Value.Id }) : BadRequest(result.Error);
     }
 
     [Authorize]

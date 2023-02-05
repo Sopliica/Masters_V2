@@ -5,6 +5,9 @@ using OnlineJudge.Models.IO;
 using OnlineJudge.Models.Domain;
 using Microsoft.Extensions.Caching.Memory;
 using OnlineJudge.Models.Miscs;
+using System.Collections.Immutable;
+using System.Text;
+using Serilog;
 
 namespace OnlineJudge.Services
 {
@@ -18,7 +21,7 @@ namespace OnlineJudge.Services
             this._cache = cache;
         }
 
-        public async Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code)
+        public async Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code, List<SubmissionLibrary> libraries)
         {
             var requestData = new GodboltRequest
             {
@@ -36,9 +39,36 @@ namespace OnlineJudge.Services
                     {
                         execute = true
                     },
-                    libraries = Array.Empty<Library>()
+                    libraries = libraries.Select(x => new Library { id = x.LibraryId, version = x.LibraryVersion }).ToArray()
                 }
             };
+
+            if (requestData.lang == "c++" || requestData.lang.StartsWith("cpp") || requestData.lang == "objc++")
+            {
+                var libDetails = await GetLibraries(lang);
+
+                foreach (var lib in libraries)
+                {
+                    var foundLib = libDetails.Value.FirstOrDefault(x => x.Id == lib.LibraryId);
+
+                    if (foundLib == null)
+                        continue;
+
+                    var foundVersion = foundLib.Versions.FirstOrDefault(x => x.VersionName == lib.LibraryVersion);
+
+                    if (foundVersion == null)
+                        continue;
+
+                    var sb = new StringBuilder();
+                    foreach (var path in foundVersion.Pathes)
+                    {
+                        sb.Append($" -I{path} ");
+                    }
+                    requestData.options.userArguments += sb.ToString();
+                }
+            }
+
+            Log.Logger.Information(JsonConvert.SerializeObject(requestData, Formatting.Indented));
 
             var request = new RestRequest($"/api/compiler/{compiler}/compile", Method.Post);
             request.AddJsonBody(requestData);
@@ -47,7 +77,7 @@ namespace OnlineJudge.Services
             if (response.IsSuccessStatusCode)
             {
                 var output = JsonConvert.DeserializeObject<GodboltOutput>(response.Content);
-                Console.WriteLine(JsonConvert.SerializeObject(output, Formatting.Indented));
+                Log.Logger.Information(JsonConvert.SerializeObject(output, Formatting.Indented));
 
                 if (output.execResult.code == 0)
                 {
@@ -62,7 +92,7 @@ namespace OnlineJudge.Services
             }
             else
             {
-                Console.WriteLine(response.Content);
+                Log.Logger.Information(response.Content);
                 return Result.Fail<SubmissionResult>("Network error");
             }
         }
@@ -87,7 +117,7 @@ namespace OnlineJudge.Services
                             {
                                 Name = x.name,
                                 Id = x.id,
-                                Versions = x.versions.Select(v => v.version).ToList()
+                                Versions = x.versions.Select(v => new VersionDetails { VersionName = v.version, Pathes = v.path.ToList() }).ToList()
                             })
                             .ToList();
 

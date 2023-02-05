@@ -1,4 +1,5 @@
-﻿@using OnlineJudge.Models.Domain
+﻿@using OnlineJudge.Consts;
+@using OnlineJudge.Models.Domain
 @using OnlineJudge.Miscs
 @using OnlineJudge.Models.IO
 @using OnlineJudge.Parsing
@@ -34,22 +35,27 @@
         var color = "";
         var isSuccessful = false;
 
-        if (Model.Result == null || Model.Result.ExecutionStatus == ExecutionStatusEnum.Queued)
+        if (Model.Result == null)
         {
             status = "Waiting for Execution";
             color = "#dbab0a";
         }
         else
         {
-            if (Model.Result.ExecutionStatus == ExecutionStatusEnum.Queued)
+            if (Model.Result.ExecutionStatus == ExecutionStatusEnum.Success)
             {
                 status = "Successfully compiled and executed";
                 color = "#28a745";
                 isSuccessful = true;
             }
+            else if (Model.Result.ExecutionStatus == ExecutionStatusEnum.NetworkError)
+            {
+                status = "Network error when trying to send code to compilation. Will try again in next few minutes.";
+                color = "#d73a49";
+            }
             else
             {
-                status = "FAIL";
+                status = "Problem with compilation or execution";
                 color = "#d73a49";
             }
         }
@@ -59,6 +65,21 @@
     <span class="normal-text">Execution Time: <b class="fieldName">@(isSuccessful ? Model.Result.Time.ToString() : "N/A")</b></span>
     <br>
     <br>
+    @if (User.IsInRole(Roles.Administrator))
+    {
+        <div style="text-align:center">
+            <b class="fieldName">Output:</b>
+        </div>
+        <br>
+        var size = 100;
+        if (Model.Result != null && Model.Result.Output.Length > 50)
+        {
+            size = 500;
+        }
+        <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@(Model.Result?.Output ?? "N/A")</textarea>
+        <br>
+        <br>
+    }
     <div style="text-align:center">
         <b class="fieldName">Submitted Code:</b>
     </div>
@@ -74,6 +95,29 @@
     <textarea id="codeArea" autocomplete="off" readonly="readonly">@Model.Code</textarea>
     <br>
     <br>
+    <b>Used Libraries:</b>
+    <br />
+    <br />
+    <table id="libs" class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Version</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Libraries != null)
+            {
+                foreach (var entry in Model.Libraries)
+                {
+                    <tr>
+                        <td>@entry.LibraryId</td>
+                        <td>@entry.LibraryVersion</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
 </div>
 
 <style>
@@ -95,6 +139,11 @@
     {
         width: 100%;
         height: 500px;
+    }
+
+    #outputArea
+    {
+        width: 100%;
     }
 
     .fieldName

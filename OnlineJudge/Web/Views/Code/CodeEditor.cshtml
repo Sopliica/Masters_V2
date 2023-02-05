@@ -5,7 +5,7 @@
     <form>
         <script>
             let libs = {};
-            let usedlibs = [];
+            let usedLibs = [];
 
             function uuidv4() {
               return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -13,18 +13,58 @@
               );
             }
 
-            redrawUsedLibs()
+            function redrawusedLibs()
             {
                 clearTab("used_libs");
+
+                for (var i = 0; i < usedLibs.length; i++)
+                {
+                    var table = document.getElementById("used_libs");
+                    var row = table.insertRow(1);
+
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    cell1.className = "cellAlign";
+                    cell2.className = "cellAlign";
+                    cell3.className = "cellAlign";
+
+                    var current = usedLibs[i];
+                    cell1.innerText = current.name;
+                    cell2.innerText = current.version;
+
+                    var action = document.createElement("button");
+                    action.type = "button";
+                    action.className = "btn btn-danger";
+                    action.innerText = "Remove Library";
+
+                    action.onclick = function () {
+                        removeLib(current.id, current.version);
+                    }
+
+                    cell3.appendChild(action);
+                }
             }
 
             function addLib(id, name, version)
             {
-                usedLibs.push({ id, name, version});
+                if (usedLibs.find(x => x.name == name && x.id == id && x.version == version))
+                    return;
 
+                usedLibs.push({id, name, version});
+
+                console.log("add");
                 console.log(usedLibs);
 
-                redrawUsedLibs();
+                redrawusedLibs();
+            }
+            
+            function removeLib(id, version)
+            {
+                usedLibs = usedLibs.filter(x => x.id != id && x.version != version);
+                console.log("remove");
+                console.log(usedLibs);
+                redrawusedLibs();
             }
 
             function clearTab(id)
@@ -40,9 +80,14 @@
             function addLibRow(id, name, versions) {
                 var table = document.getElementById("libs");
                 var row = table.insertRow(1);
+
                 var cell1 = row.insertCell(0);
                 var cell2 = row.insertCell(1);
                 var cell3 = row.insertCell(2);
+
+                cell1.className = "cellAlign";
+                cell2.className = "cellAlign";
+                cell3.className = "cellAlign";
 
                 cell1.innerText = name;
 
@@ -53,8 +98,8 @@
                 for (const val of versions)
                 {
                     var option = document.createElement("option");
-                    option.value = val;
-                    option.text = val;
+                    option.value = val.versionName;
+                    option.text = val.versionName;
                     select.appendChild(option);
                 }
 
@@ -64,7 +109,6 @@
                 action.type = "button";
                 action.className = "btn btn-primary";
                 action.innerText = "Add Library";
-                action.style.height = "50px"
                 action.onclick = function()
                 {
                     addLib(id, name, document.getElementById(guid).value);
@@ -85,9 +129,9 @@
                 .then((res) => res.json())
                 .then((data) => 
                 {
+                    document.getElementById("libLangName").innerText = lang;
                     libs = data.sort((a, b) => b.name.localeCompare(a.name));
                     clearTab("libs");
-                    console.log("drawing libs");
                     for (var i = 0; i < libs.length; i++) {
                         addLibRow(libs[i].id, libs[i].name, libs[i].versions);
                     }
@@ -96,7 +140,7 @@
 
             function changedLang(selectObject) {
               var value = selectObject.value;
-              usedlibs = [];
+              usedLibs = [];
               document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
               document.getElementsByName("compiler_dropdown").forEach(x => x.style.display = "none");
               document.getElementById("compilers_" + value).style.display = "";
@@ -133,43 +177,12 @@
             window.onload = function()
             {
                 document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
-                getLibs("c++");
-                //getLibs(document.getElementById("langs_dropdown").value);
+                getLibs(document.getElementById("langs_dropdown").value);
             }
         </script>
         <br />
         <br />
         <textarea name="code" id="code" placeholder="Paste your code here..."></textarea>
-        <br />
-        <br />
-        <b>Used Libraries:</b>
-        <table id="used_libs" class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Version</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-        <br />
-        <br />
-        <b>Available Libraries:</b>
-        <br />
-        <br />
-        <table id="libs" class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Version</th>
-                    <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
         <br />
         <br />
         @if (User.Identity.IsAuthenticated)
@@ -184,6 +197,38 @@
                 <a class="btn btn-success" href="/Account/SignIn">Sign In</a>
             </div>
         }
+        <br />
+        <br />
+        <b>Used Libraries:</b>
+        <br />
+        <br />
+        <table id="used_libs" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <br />
+        <br />
+        <b>Available Libraries for language: </b><b id="libLangName">-</b>
+        <br />
+        <br />
+        <table id="libs" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Version</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
     </form>
 </div>
 
@@ -192,6 +237,14 @@
     {
         width: 100%;
         height: 500px;
+    }
+
+    .cellAlign
+    {
+        vertical-align: middle;
+    }
+
+    tr {
     }
 
     #upload_btn
@@ -209,7 +262,7 @@
         var code = document.getElementById("code").value;
         var comp = document.getElementById("compilers_" + lang).value;
 
-        let data = { Language: lang, Compiler: comp, Code: code, AssignmentId: '@Model.AssignmentId' };
+        let data = { Language: lang, Compiler: comp, Code: code, AssignmentId: '@Model.AssignmentId', Libraries: usedLibs };
 
         fetch("/Code/Submission/", 
         {

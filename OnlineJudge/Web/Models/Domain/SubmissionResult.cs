@@ -20,6 +20,8 @@
 
         public int Time { get; set; }
 
+        public int AttemptedExecutionsCount { get; set; } = 0;
+
         public ExecutionStatusEnum ExecutionStatus { get; set; }
     }
 }

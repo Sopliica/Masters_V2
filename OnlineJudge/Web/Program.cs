@@ -18,6 +18,7 @@ builder.Services.AddTransient<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddTransient<AccountService>();
 builder.Services.AddTransient<CodeService>();
 builder.Services.AddTransient<ICodeExecutorService, GodboltCodeExecutor>();
+builder.Services.AddHostedService<BackgroundExecutorService>();
 
 builder.Services.AddControllersWithViews(options =>
 {

@@ -66,8 +66,14 @@ namespace OnlineJudge.Services
 
         public Result<Submission> SaveSubmission(SubmissionInput input, Guid UserId)
         {
-            if (input == null || string.IsNullOrWhiteSpace(input.Code) || string.IsNullOrWhiteSpace(input.Language))
-                return Result.Fail<Submission>("Code and language's name cannot be empty.");
+            if (input == null)
+                return Result.Fail<Submission>("Code, language name and compiler must be selected.");
+
+            if (string.IsNullOrWhiteSpace(input.Code))
+                return Result.Fail<Submission>("Source code cannot be empty.");
+
+            if (string.IsNullOrWhiteSpace(input.Language) || string.IsNullOrWhiteSpace(input.Compiler) || input.Compiler == "-")
+                return Result.Fail<Submission>("Language name and compiler must be selected.");
 
             var user = context.Users.FirstOrDefault(x => x.Id == UserId);
 
@@ -85,6 +91,16 @@ namespace OnlineJudge.Services
                 Compiler = input.Compiler,
                 UserId = UserId,
             };
+
+            if (input.Libraries != null)
+            {
+                submission.Libraries = input.Libraries.Select(x => new SubmissionLibrary
+                {
+                    LibraryId = x.Id,
+                    LibraryVersion = x.Version,
+                    LibraryName = x.Name
+                }).ToList();
+            }
 
             context.Submissions.Add(submission);
             context.SaveChanges();
@@ -109,6 +125,7 @@ namespace OnlineJudge.Services
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
                 .Include(x => x.Result)
+                .Include(x => x.Libraries)
                 .FirstOrDefault(x => x.Id == Id);
 
             if (submission == null)
@@ -122,14 +139,16 @@ namespace OnlineJudge.Services
 
         public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission)
         {
-            var result = await executor.TryExecute(submission.Language, submission.Compiler, submission.Code);
+            var result = await executor.TryExecute(submission.Language, submission.Compiler, submission.Code, submission.Libraries);
             return result;
         }
 
         internal async Task UpdateSubmissionResult(Submission submission, SubmissionResult result)
         {
             context.Attach(submission);
+            var currentCount = submission.Result?.AttemptedExecutionsCount ?? 0;
             submission.Result = result;
+            submission.Result.AttemptedExecutionsCount = currentCount + 1;
             context.Entry(result).State = EntityState.Added;
             context.Entry(submission).State = EntityState.Modified;
             context.Entry(submission).Reference(nameof(Submission.Result)).IsModified = true;

@@ -21,5 +21,7 @@
         public Guid UserId { get; set; }
 
         public SubmissionResult? Result { get; set; }
+
+        public List<SubmissionLibrary> Libraries { get; set; } = new List<SubmissionLibrary>();
     }
 }

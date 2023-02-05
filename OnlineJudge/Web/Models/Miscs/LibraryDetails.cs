@@ -6,6 +6,6 @@
 
         public string Name { get; set; }
 
-        public List<string> Versions { get; set; } = new List<string>();
+        public List<VersionDetails> Versions { get; set; } = new List<VersionDetails>();
     }
 }

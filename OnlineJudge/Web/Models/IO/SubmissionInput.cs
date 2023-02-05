@@ -9,5 +9,7 @@
         public string Compiler { get; set; }
 
         public string Code { get; set; }
+
+        public List<SubmissionLibraryInput> Libraries { get; set; } = new List<SubmissionLibraryInput>();
     }
 }
