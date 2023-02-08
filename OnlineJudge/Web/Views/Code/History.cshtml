@@ -33,9 +33,9 @@
                 }
                 
                 <tr>
-                    <th scope="row">@submission.User.Email</th>
-                    <th scope="row" style="background-color:@color"></th>
-                    <th scope="row">@submission.Assignment.Title.Substring(0, Math.Min(100, submission.Assignment.Title.Length))...</th>
+                    <td scope="row">@submission.User.Email</td>
+                    <td scope="row" style="background-color:@color"></td>
+                    <td scope="row">@submission.Assignment.Title.Substring(0, Math.Min(100, submission.Assignment.Title.Length))...</td>
                     <td>@submission.Language</td>
                     <td>@submission.Submitted.ToString("yyyy-MM-dd hh:mm")</td>
                     <td>

@@ -4,6 +4,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using OnlineJudge.Consts;
 
 namespace OnlineJudge.Controllers;
 
@@ -74,6 +76,25 @@ public class AccountController : Controller
         );
 
         return Redirect("/");
+    }
+
+    [HttpGet]
+    [Authorize(Roles = Roles.Administrator)]
+    public IActionResult ChangeRole()
+    {
+        var users = _service.GetNonActivatedUsers();
+
+        return View(users);
+    }
+
+    [HttpPost("/Account/Activate")]
+    [Authorize(Roles = Roles.Administrator)]
+    public IActionResult ActivateUser([FromBody] ActiveUserInput input)
+    {
+        if (input != null)
+            _service.ActivateUser(input.Id);
+
+        return Ok(input);
     }
 
     [HttpGet]

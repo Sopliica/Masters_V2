@@ -1,0 +1,64 @@
+﻿@using OnlineJudge.Models.IO;
+@model List<UserDTO>
+@{
+    ViewData["Title"] = "Activate Users";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Not activated Users:</h1>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Action(s)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr id="@user.Id">
+                <td scope="row">@user.Email</td>
+                <td scope="row">
+                    <button type="button" class="btn btn-success" onclick="SendCode('@user.Id')">Activate User</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.AntiForgeryToken()
+
+<script>
+    function SendCode(id) {
+        let data = { Id: id }
+
+        fetch("/Account/Activate/",
+        {
+            method: "POST",
+            headers:
+            {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.getElementsByName('__RequestVerificationToken')[0].value
+            },
+            body: JSON.stringify(data)
+        })
+        .then((res) =>
+        {
+            if (res.ok)
+                return res.json();
+
+            return Promise.reject(res);
+        })
+        .then((response) => {
+            document.getElementById(response.id).remove();
+        })
+        .catch((res) =>
+        {
+            res.text().then(function (result) {
+                alert("Error: " + result);
+            });
+        });
+    }
+</script>

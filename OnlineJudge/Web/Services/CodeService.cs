@@ -80,7 +80,9 @@ namespace OnlineJudge.Services
             if (user == null)
                 return Result.Fail<Submission>("Your account has been not found. Try signing in again.");
 
-            if (user.Role == Roles.NotActivated)
+            var allowedRoles = new[] { Roles.User, Roles.Administrator };
+
+            if (!allowedRoles.Contains(user.Role))
                 return Result.Fail<Submission>("Your account is not activated. Contact administrator to activate your account.");
 
             var submission = new Submission

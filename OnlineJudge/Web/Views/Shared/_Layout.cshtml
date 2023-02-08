@@ -36,6 +36,12 @@
                                 <a class="nav-link" asp-area="" asp-controller="Code" asp-action="Upload">Add Assignment</a>
                             </li>
                         }
+                        @if (this.User.Identity.IsAuthenticated && this.User.IsInRole(Roles.Administrator))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Account" asp-action="ChangeRole">Activate Users</a>
+                            </li>
+                        }
                     </ul>
                     <div id="sign">
                         @if (this.User.Identity.IsAuthenticated)

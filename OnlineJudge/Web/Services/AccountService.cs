@@ -22,6 +22,15 @@ namespace OnlineJudge.Services
             this.hasher = hasher;
         }
 
+        public List<UserDTO> GetNonActivatedUsers()
+        {
+            return context
+                   .Users
+                   .Where(x => x.Role == Roles.NotActivated)
+                   .Select(x => new UserDTO { Email = x.Email, Id = x.Id })
+                   .ToList();
+        }
+
         public async Task<Result<(ClaimsIdentity Claims, AuthenticationProperties Properties)>> TrySignIn(SignInInput input)
         {
             if (input == null || string.IsNullOrEmpty(input.Email) || string.IsNullOrEmpty(input.Password))
@@ -66,7 +75,7 @@ namespace OnlineJudge.Services
             if (user != null)
                 return Result.Fail<(ClaimsIdentity, AuthenticationProperties)>("User with this email already exists");
 
-            user = new User(input.Email, Roles.User);
+            user = new User(input.Email, Roles.NotActivated);
             user.PasswordHash = hasher.HashPassword(user, input.Password);
 
             await context.Users.AddAsync(user);
@@ -87,6 +96,19 @@ namespace OnlineJudge.Services
             };
 
             return Result.Ok((claimsIdentity, authProperties));
+        }
+
+        public bool ActivateUser(Guid id)
+        {
+            var user = context.Users.FirstOrDefault(x => x.Id == id);
+
+            if (user == null)
+                return false;
+
+            user.Role = Roles.User;
+            context.SaveChanges();
+
+            return true;
         }
     }
 }
