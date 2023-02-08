@@ -39,34 +39,9 @@ namespace OnlineJudge.Services
                     {
                         execute = true
                     },
-                    libraries = libraries.Select(x => new Library { id = x.LibraryId, version = x.LibraryVersion }).ToArray()
+                    libraries = libraries.Select(x => new Library { id = x.LibraryId, version = x.LibraryVersionId }).ToArray()
                 }
             };
-
-            if (requestData.lang == "c++" || requestData.lang.StartsWith("cpp") || requestData.lang == "objc++")
-            {
-                var libDetails = await GetLibraries(lang);
-
-                foreach (var lib in libraries)
-                {
-                    var foundLib = libDetails.Value.FirstOrDefault(x => x.Id == lib.LibraryId);
-
-                    if (foundLib == null)
-                        continue;
-
-                    var foundVersion = foundLib.Versions.FirstOrDefault(x => x.VersionName == lib.LibraryVersion);
-
-                    if (foundVersion == null)
-                        continue;
-
-                    var sb = new StringBuilder();
-                    foreach (var path in foundVersion.Pathes)
-                    {
-                        sb.Append($" -I{path} ");
-                    }
-                    requestData.options.userArguments += sb.ToString();
-                }
-            }
 
             Log.Logger.Information(JsonConvert.SerializeObject(requestData, Formatting.Indented));
 
@@ -117,7 +92,7 @@ namespace OnlineJudge.Services
                             {
                                 Name = x.name,
                                 Id = x.id,
-                                Versions = x.versions.Select(v => new VersionDetails { VersionName = v.version, Pathes = v.path.ToList() }).ToList()
+                                Versions = x.versions.Select(v => new VersionDetails { VersionName = v.version, VersionId = v.id, Pathes = v.path.ToList() }).ToList()
                             })
                             .ToList();
 

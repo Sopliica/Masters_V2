@@ -8,7 +8,10 @@ using OnlineJudge.Models.Domain;
 using OnlineJudge.Services;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+Log.Logger = new LoggerConfiguration()
+.WriteTo
+.File("logs/log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true, retainedFileCountLimit: 21)
+.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 

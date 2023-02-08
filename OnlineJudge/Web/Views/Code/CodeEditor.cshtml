@@ -17,7 +17,7 @@
             {
                 clearTab("used_libs");
 
-                for (var i = 0; i < usedLibs.length; i++)
+                for (let i = 0; i < usedLibs.length; i++)
                 {
                     var table = document.getElementById("used_libs");
                     var row = table.insertRow(1);
@@ -29,7 +29,7 @@
                     cell2.className = "cellAlign";
                     cell3.className = "cellAlign";
 
-                    var current = usedLibs[i];
+                    let current = usedLibs[i];
                     cell1.innerText = current.name;
                     cell2.innerText = current.version;
 
@@ -37,7 +37,6 @@
                     action.type = "button";
                     action.className = "btn btn-danger";
                     action.innerText = "Remove Library";
-
                     action.onclick = function () {
                         removeLib(current.id, current.version);
                     }
@@ -46,12 +45,12 @@
                 }
             }
 
-            function addLib(id, name, version)
+            function addLib(id, name, version, versionId)
             {
                 if (usedLibs.find(x => x.name == name && x.id == id && x.version == version))
                     return;
 
-                usedLibs.push({id, name, version});
+                usedLibs.push({id, name, version, versionId});
 
                 console.log("add");
                 console.log(usedLibs);
@@ -59,11 +58,9 @@
                 redrawusedLibs();
             }
             
-            function removeLib(id, version)
-            {
-                usedLibs = usedLibs.filter(x => x.id != id && x.version != version);
-                console.log("remove");
-                console.log(usedLibs);
+            function removeLib(id, version) {
+                console.log("rem" + version);
+                usedLibs = usedLibs.filter(x => x.id != id || x.version != version);
                 redrawusedLibs();
             }
 
@@ -98,7 +95,7 @@
                 for (const val of versions)
                 {
                     var option = document.createElement("option");
-                    option.value = val.versionName;
+                    option.value = val.versionId;
                     option.text = val.versionName;
                     select.appendChild(option);
                 }
@@ -111,7 +108,7 @@
                 action.innerText = "Add Library";
                 action.onclick = function()
                 {
-                    addLib(id, name, document.getElementById(guid).value);
+                    addLib(id, name, document.getElementById(guid).selectedOptions[0].text, document.getElementById(guid).selectedOptions[0].value);
                 }
                 cell3.appendChild(action);
             }
@@ -132,7 +129,7 @@
                     document.getElementById("libLangName").innerText = lang;
                     libs = data.sort((a, b) => b.name.localeCompare(a.name));
                     clearTab("libs");
-                    for (var i = 0; i < libs.length; i++) {
+                    for (let i = 0; i < libs.length; i++) {
                         addLibRow(libs[i].id, libs[i].name, libs[i].versions);
                     }
                 })

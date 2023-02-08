@@ -29,7 +29,9 @@
     <hr class="fieldName">   
     <div style="text-align:center">
         <b class="fieldName">Submission Result</b>
-    </div>
+    </div>   
+    <span class="normal-text">Subbmiter: <b class="fieldName" style="color:#f7e813">@Model.User.Email</b></span>
+    <br>
     @{
         var status = "";
         var color = "";
@@ -65,7 +67,10 @@
     <span class="normal-text">Execution Time: <b class="fieldName">@(isSuccessful ? Model.Result.Time.ToString() : "N/A")</b></span>
     <br>
     <br>
-    @if (User.IsInRole(Roles.Administrator))
+    @{
+        var showErrorLog = Model.Result != null && Model.Result.ExecutionStatus == ExecutionStatusEnum.Failed;
+    }
+    @if (User.IsInRole(Roles.Administrator) || showErrorLog)
     {
         <div style="text-align:center">
             <b class="fieldName">Output:</b>

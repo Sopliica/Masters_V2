@@ -6,6 +6,8 @@
 
         public string Version { get; set; }
 
+        public string VersionId { get; set; }
+
         public string Name { get; set; }
     }
 }

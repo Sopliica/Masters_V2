@@ -4,6 +4,7 @@
 
 <div id="box">
 <form method="post" action="/Account/Register">
+  @Html.AntiForgeryToken()
   <div class="form-outline mb-4">
     <label class="form-label" for="form2Example1">Email</label>
     <input name="Email" type="email" id="form2Example1" class="form-control" />
@@ -15,6 +16,8 @@
   </div>
 
   <button style="float:right;" class="btn btn-primary btn-block mb-1">Register</button>
+  <br />
+  <br />
 </form>
 </div>
 

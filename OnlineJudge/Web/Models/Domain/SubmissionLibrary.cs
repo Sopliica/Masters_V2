@@ -9,5 +9,7 @@
         public string LibraryName { get; set; }
 
         public string LibraryVersion { get; set; }
+
+        public string LibraryVersionId { get; set; }
     }
 }

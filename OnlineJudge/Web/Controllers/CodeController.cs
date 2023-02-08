@@ -143,10 +143,17 @@ public class CodeController : Controller
         return View("SubmissionView", result.Value);
     }
 
+    [Authorize]
     [HttpGet]
     public IActionResult History()
     {
-        var tasks = _CodeService.GetAllSubmissions();
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var isAdmin = this.User.IsInRole(Roles.Administrator);
+
+        var tasks = isAdmin ?
+        _CodeService.GetAllSubmissions() :
+        _CodeService.GetSubmissions(userId);
+
         return View(tasks.Value);
     }
 }

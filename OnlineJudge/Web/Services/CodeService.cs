@@ -98,6 +98,7 @@ namespace OnlineJudge.Services
                 {
                     LibraryId = x.Id,
                     LibraryVersion = x.Version,
+                    LibraryVersionId = x.VersionId,
                     LibraryName = x.Name
                 }).ToList();
             }
@@ -114,6 +115,18 @@ namespace OnlineJudge.Services
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
                 .Include(x => x.Result)
+                .ToList();
+
+            return Result.Ok(submissions);
+        }
+
+        public Result<List<Submission>> GetSubmissions(Guid userId)
+        {
+            var submissions = context.Submissions
+                .Include(x => x.User)
+                .Include(x => x.Assignment)
+                .Include(x => x.Result)
+                .Where(x => x.UserId == userId)
                 .ToList();
 
             return Result.Ok(submissions);

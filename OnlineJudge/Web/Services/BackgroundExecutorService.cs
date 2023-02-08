@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineJudge.Database;
-using OnlineJudge.Miscs;
 using OnlineJudge.Models.Domain;
 using Serilog;
 
