@@ -3,7 +3,7 @@
 @using OnlineJudge.Miscs
 @using OnlineJudge.Models.IO
 @using OnlineJudge.Parsing
-@model Submission
+@model SubmissionViewModel
 @{
     ViewData["Title"] = "Submission Details";
 }
@@ -14,43 +14,43 @@
     </div>
     <br>
     <br>
-    <b class="fieldName">Title: </b>@Model.Assignment.Title
+    <b class="fieldName">Title: </b>@Model.Submission.Assignment.Title
     <br>
     <br>
-    <b class="fieldName">Description: </b>@Model.Assignment.Description
+    <b class="fieldName">Description: </b>@Model.Submission.Assignment.Description
     <br>
     <br>
-    <b class="fieldName">Time Limit (seconds): </b>@Model.Assignment.TimeLimitSeconds
+    <b class="fieldName">Time Limit (seconds): </b>@Model.Submission.Assignment.TimeLimitSeconds
     <br>
     <br>
-    <b class="fieldName">Memory Limit (MB): </b>@Model.Assignment.MemoryLimitMB
+    <b class="fieldName">Memory Limit (MB): </b>@Model.Submission.Assignment.MemoryLimitMB
     <br>
     <br>
     <hr class="fieldName">   
     <div style="text-align:center">
         <b class="fieldName">Submission Result</b>
     </div>   
-    <span class="normal-text">Subbmiter: <b class="fieldName" style="color:#f7e813">@Model.User.Email</b></span>
+    <span class="normal-text">Subbmiter: <b class="fieldName" style="color:#f7e813">@Model.Submission.User.Email</b></span>
     <br>
     @{
         var status = "";
         var color = "";
         var isSuccessful = false;
 
-        if (Model.Result == null)
+        if (Model.Submission.Result == null)
         {
             status = "Waiting for Execution";
             color = "#dbab0a";
         }
         else
         {
-            if (Model.Result.ExecutionStatus == ExecutionStatusEnum.Success)
+            if (Model.Submission.Result.ExecutionStatus == ExecutionStatusEnum.Success)
             {
                 status = "Successfully compiled and executed";
                 color = "#28a745";
                 isSuccessful = true;
             }
-            else if (Model.Result.ExecutionStatus == ExecutionStatusEnum.NetworkError)
+            else if (Model.Submission.Result.ExecutionStatus == ExecutionStatusEnum.NetworkError)
             {
                 status = "Network error when trying to send code to compilation. Will try again in next few minutes.";
                 color = "#d73a49";
@@ -61,27 +61,32 @@
                 color = "#d73a49";
             }
         }
+
+        var outputComparisonText = Model.IsOutputOK ? "Output of your program is valid!" : "Output of your program is not valid";
+        var outputComparisonColor = Model.IsOutputOK ? "#28a745" : "#d73a49";
     }
     <span class="normal-text">Compilation Status: <b class="fieldName" style="color:@color">@status</b></span>
+    <br
+    <span class="normal-text">Output Validation Status: <b class="fieldName" style="outputComparisonColor:@color">@outputComparisonText</b></span>
     <br>
-    <span class="normal-text">Execution Time: <b class="fieldName">@(isSuccessful ? Model.Result.Time.ToString() : "N/A")</b></span>
+    <span class="normal-text">Execution Time: <b class="fieldName">@(isSuccessful ? Model.Submission.Result.Time.ToString() : "N/A")</b></span>
     <br>
     <br>
     @{
-        var showErrorLog = Model.Result != null && Model.Result.ExecutionStatus == ExecutionStatusEnum.Failed;
+        var showErrorLog = Model.Submission.Result != null && Model.Submission.Result.ExecutionStatus == ExecutionStatusEnum.Failed;
     }
-    @if (User.IsInRole(Roles.Administrator) || showErrorLog)
+    @if (User.IsInRole(Roles.Administrator) || showErrorLog || Model.IsOutputOK)
     {
         <div style="text-align:center">
             <b class="fieldName">Output:</b>
         </div>
         <br>
         var size = 100;
-        if (Model.Result != null && Model.Result.Output.Length > 50)
+        if (Model.Submission.Result != null && Model.Submission.Result.Output.Length > 50)
         {
             size = 500;
         }
-        <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@(Model.Result?.Output ?? "N/A")</textarea>
+        <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@(Model.Submission.Result?.Output ?? "N/A")</textarea>
         <br>
         <br>
     }
@@ -97,7 +102,7 @@
     <div>
         <button id="copyButton" type="button" class="btn" onclick="copy()">Copy Code</button>
     </div>
-    <textarea id="codeArea" autocomplete="off" readonly="readonly">@Model.Code</textarea>
+    <textarea id="codeArea" autocomplete="off" readonly="readonly">@Model.Submission.Code</textarea>
     <br>
     <br>
     <b>Used Libraries:</b>
@@ -111,9 +116,9 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model.Libraries != null)
+            @if (Model.Submission.Libraries != null)
             {
-                foreach (var entry in Model.Libraries)
+                foreach (var entry in Model.Submission.Libraries)
                 {
                     <tr>
                         <td>@entry.LibraryId</td>

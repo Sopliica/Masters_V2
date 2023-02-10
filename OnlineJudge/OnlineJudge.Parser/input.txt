@@ -26,9 +26,4 @@ TIME: 10
 
 MEMORY: 15
 
-OUTPUT: ["
-d
-
-a",
-
-"b"]
+OUTPUT: ["Hello", "World"]

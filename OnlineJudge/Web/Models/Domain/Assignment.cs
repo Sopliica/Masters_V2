@@ -14,6 +14,8 @@
 
         public bool IsDeleted { get; set; } = false;
 
+        public List<AssignmentOutput> AssignmentOutputs { get; set; } = new List<AssignmentOutput>();
+
         public List<Submission> Submissions { get; set; } = new List<Submission>();
     }
 }

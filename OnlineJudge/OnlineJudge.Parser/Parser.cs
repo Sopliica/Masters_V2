@@ -97,6 +97,9 @@ namespace OnlineJudge.Parsing
             if (list != null && list.Count == 0)
                 _Errors.Add("Output list requires to define at least one sample output e.g [\"value1\", \"value2\"].");
 
+            if (list != null && list.Any(string.IsNullOrWhiteSpace))
+                _Errors.Add("Output list cannot contain empty elements. Try something like e.g [\"value1\", \"value2\"].");
+
             if (_Errors.Any())
                 return Result.Fail(string.Join(Environment.NewLine, _Errors));
 

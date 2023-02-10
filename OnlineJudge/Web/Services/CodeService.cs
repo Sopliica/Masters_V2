@@ -27,6 +27,7 @@ namespace OnlineJudge.Services
                 Description = doc.Description,
                 MemoryLimitMB = doc.MemoryLimitMB,
                 TimeLimitSeconds = doc.TimeLimitSeconds,
+                AssignmentOutputs = doc.Output.Select(x => new AssignmentOutput { Text = x} ).ToList(),
             };
 
             context.Assignments.Add(assignment);
@@ -139,6 +140,7 @@ namespace OnlineJudge.Services
             var submission = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
+                .ThenInclude(x => x.AssignmentOutputs)
                 .Include(x => x.Result)
                 .Include(x => x.Libraries)
                 .FirstOrDefault(x => x.Id == Id);

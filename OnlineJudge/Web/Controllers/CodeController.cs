@@ -140,7 +140,15 @@ public class CodeController : Controller
             return View("Error", result.Error);
         }
 
-        return View("SubmissionView", result.Value);
+        var isOutputOK = false;
+
+        if (result.Value.Result != null && result.Value.Result.ExecutionStatus == ExecutionStatusEnum.Success)
+        {
+            var expectedOutputs = result.Value.Assignment.AssignmentOutputs.Select(x => x.Text).ToList();
+            isOutputOK = OutputComparer.Compare(result.Value.Result.Output, expectedOutputs);
+        }
+
+        return View("SubmissionView", new SubmissionViewModel { Submission = result.Value, IsOutputOK = isOutputOK });
     }
 
     [Authorize]

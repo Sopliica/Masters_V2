@@ -5,8 +5,6 @@ using OnlineJudge.Models.IO;
 using OnlineJudge.Models.Domain;
 using Microsoft.Extensions.Caching.Memory;
 using OnlineJudge.Models.Miscs;
-using System.Collections.Immutable;
-using System.Text;
 using Serilog;
 
 namespace OnlineJudge.Services
@@ -18,7 +16,7 @@ namespace OnlineJudge.Services
 
         public GodboltCodeExecutor(IMemoryCache cache)
         {
-            this._cache = cache;
+            _cache = cache;
         }
 
         public async Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code, List<SubmissionLibrary> libraries)
@@ -75,7 +73,6 @@ namespace OnlineJudge.Services
         public async Task<Result<List<LibraryDetails>>> GetLibraries(string lang)
         {
             var cacheKey = $"LibrariesGodboltCache_{lang}";
-
             if (_cache.TryGetValue<List<LibraryDetails>>(cacheKey, out var list))
             {
                 Console.WriteLine($"Using Library Cache: {lang}");
@@ -87,14 +84,16 @@ namespace OnlineJudge.Services
             var libsResponse = await _client.GetAsync<List<LibraryInfo>>(libsRequest);
 
             var output = libsResponse
-                            .Select(x =>
-                            new LibraryDetails
-                            {
-                                Name = x.name,
-                                Id = x.id,
-                                Versions = x.versions.Select(v => new VersionDetails { VersionName = v.version, VersionId = v.id, Pathes = v.path.ToList() }).ToList()
-                            })
-                            .ToList();
+                         .Select(x =>
+                         new LibraryDetails
+                         {
+                             Name = x.name,
+                             Id = x.id,
+                             Versions = x.versions
+                             .Select(v => new VersionDetails { VersionName = v.version, VersionId = v.id, Pathes = v.path.ToList() })
+                             .ToList()
+                         })
+                         .ToList();
 
             _cache.Set(cacheKey, output, TimeSpan.FromHours(72));
             return Result.Ok(output);
