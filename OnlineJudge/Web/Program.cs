@@ -8,6 +8,7 @@ using OnlineJudge.Database;
 using OnlineJudge.Models.Domain;
 using OnlineJudge.Services;
 using Serilog;
+using System.Security.Cryptography;
 
 Log.Logger = new LoggerConfiguration()
 .WriteTo
@@ -50,9 +51,12 @@ using (var serviceScope = app.Services.CreateScope())
     if (!context.Users.Any())
     {
         var user = new User("admin_ath@localhost", Roles.Administrator);
-        var pw = new Random().Next(100_000_000, 999_999_999);
-        File.WriteAllText("admin_passphrase.txt", pw.ToString());
-        user.PasswordHash = hasher.HashPassword(user, pw.ToString());
+
+        var count = new Random().Next(30, 50);
+        var bytes = RandomNumberGenerator.GetBytes(15);
+        var passphrase = Convert.ToBase64String(bytes);
+        File.WriteAllText("../admin_passphrase.txt", passphrase);
+        user.PasswordHash = hasher.HashPassword(user, passphrase);
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
     }
