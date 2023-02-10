@@ -18,10 +18,8 @@
             if (output == expected)
                 return true;
 
-            var validChars = new[] { '.', ',', ';' };
-
-            var noWhiteCharsOutput = output.Where(x => char.IsLetterOrDigit(x) || validChars.Contains(x)).ToList();
-            var noWhiteCharsExpected = expected.Where(x => char.IsLetterOrDigit(x) || validChars.Contains(x)).ToList();
+            var noWhiteCharsOutput = output.Where(x => !char.IsWhiteSpace(x)).ToList();
+            var noWhiteCharsExpected = expected.Where(x => !char.IsWhiteSpace(x)).ToList();
 
             if (noWhiteCharsOutput.SequenceEqual(noWhiteCharsExpected))
                 return true;
