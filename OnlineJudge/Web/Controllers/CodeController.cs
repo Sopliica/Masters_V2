@@ -162,6 +162,15 @@ public class CodeController : Controller
         _CodeService.GetAllSubmissions() :
         _CodeService.GetSubmissions(userId);
 
+        if (tasks.Success)
+        {
+            var ordered = isAdmin ?
+                tasks.Value.OrderByDescending(x => x.User.Email).ToList() :
+                tasks.Value.OrderByDescending(x => x.Submitted).ToList();
+
+            return View(ordered);
+        }
+
         return View(tasks.Value);
     }
 }

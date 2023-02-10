@@ -38,7 +38,7 @@ namespace OnlineJudge.Services
 
         public Result<Assignment> GetAssignment(Guid Id)
         {
-            var assignment = context.Assignments.FirstOrDefault(x => x.Id == Id);
+            var assignment = context.Assignments.Include(x => x.AssignmentOutputs).FirstOrDefault(x => x.Id == Id);
 
             if (assignment == null || assignment.IsDeleted)
                 return Result.Fail<Assignment>("Not found");
@@ -86,6 +86,14 @@ namespace OnlineJudge.Services
             if (!allowedRoles.Contains(user.Role))
                 return Result.Fail<Submission>("Your account is not activated. Contact administrator to activate your account.");
 
+            var assignment = context.Assignments.FirstOrDefault(x => x.Id == input.AssignmentId);
+
+            if (assignment == null)
+                return Result.Fail<Submission>("Assignment does not exist, try refreshing page.");
+
+            if (assignment.IsDeleted)
+                return Result.Fail<Submission>("This assignment was disabled. You can no longer submit your solutions to it.");
+
             var submission = new Submission
             {
                 Language = input.Language,
@@ -117,6 +125,7 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
+                .ThenInclude(x => x.AssignmentOutputs)
                 .Include(x => x.Result)
                 .ToList();
 
@@ -128,6 +137,7 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
+                .ThenInclude(x => x.AssignmentOutputs)
                 .Include(x => x.Result)
                 .Where(x => x.UserId == userId)
                 .ToList();

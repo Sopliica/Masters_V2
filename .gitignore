@@ -400,3 +400,6 @@ OnlineJudge/Web/db.db
 OnlineJudge/Web/db.db-shm
 OnlineJudge/Web/db.db-wal
 OnlineJudge/Web/admin_passphrase.txt
+OnlineJudge/db.db
+OnlineJudge/db.db-shm
+OnlineJudge/db.db-wal

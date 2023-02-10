@@ -17,6 +17,7 @@ namespace OnlineJudge.Models.Domain
             TimeLimitSeconds = value.TimeLimitSeconds;
             MemoryLimitMB = value.MemoryLimitMB;
             IsDeleted = value.IsDeleted;
+            AssignmentOutputs = value.AssignmentOutputs;
         }
 
         public Guid Id { get; set; }
@@ -32,5 +33,7 @@ namespace OnlineJudge.Models.Domain
         public bool IsDeleted { get; set; }
 
         public List<LanguageDetails> AvailableLanguages { get; set; } = new List<LanguageDetails>();
+
+        public List<AssignmentOutput> AssignmentOutputs { get; set; } = new List<AssignmentOutput>();
     }
 }

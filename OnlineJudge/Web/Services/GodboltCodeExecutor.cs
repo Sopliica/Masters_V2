@@ -54,7 +54,7 @@ namespace OnlineJudge.Services
 
                 if (output.execResult.code == 0)
                 {
-                    var stdout = string.Join(",", output.execResult.stdout.Select(x => x.text));
+                    var stdout = string.Join("", output.execResult.stdout.Select(x => x.text));
                     return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Success, stdout, Convert.ToInt32(output.execResult.execTime)));
                 }
                 else

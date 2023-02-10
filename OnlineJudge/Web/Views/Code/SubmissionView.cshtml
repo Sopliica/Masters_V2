@@ -26,11 +26,25 @@
     <b class="fieldName">Memory Limit (MB): </b>@Model.Submission.Assignment.MemoryLimitMB
     <br>
     <br>
+    @if (User.IsInRole(Roles.Administrator))
+    {
+        <b class="fieldName">Valid Outputs:</b>
+        <br>
+        <br>
+        @foreach (var output in Model.Submission.Assignment.AssignmentOutputs)
+        {
+            <textarea id="outputListArea" autocomplete="off" readonly="readonly">@output.Text</textarea>
+            <br>
+            <br>
+        }
+        <br>
+        <br>
+    }
     <hr class="fieldName">   
     <div style="text-align:center">
         <b class="fieldName">Submission Result</b>
     </div>   
-    <span class="normal-text">Subbmiter: <b class="fieldName" style="color:#f7e813">@Model.Submission.User.Email</b></span>
+    <span class="normal-text">Submiter: <b class="fieldName" style="color:#f7e813">@Model.Submission.User.Email</b></span>
     <br>
     @{
         var status = "";
@@ -62,12 +76,18 @@
             }
         }
 
-        var outputComparisonText = Model.IsOutputOK ? "Output of your program is valid!" : "Output of your program is not valid";
-        var outputComparisonColor = Model.IsOutputOK ? "#28a745" : "#d73a49";
+        var outputComparisonText = "N/A";
+        var outputComparisonColor = "";
+
+        if (Model.Submission.Result != null && Model.Submission.Result.ExecutionStatus ==  ExecutionStatusEnum.Success)
+        {
+            outputComparisonText = Model.IsOutputOK ? "Output of your program is valid!" : "Output of your program is not valid";
+            outputComparisonColor = Model.IsOutputOK ? "#28a745" : "#d73a49";
+        }
     }
     <span class="normal-text">Compilation Status: <b class="fieldName" style="color:@color">@status</b></span>
-    <br
-    <span class="normal-text">Output Validation Status: <b class="fieldName" style="outputComparisonColor:@color">@outputComparisonText</b></span>
+    <br>
+    <span class="normal-text">Output Validation Status: <b class="fieldName" style="color:@outputComparisonColor">@outputComparisonText</b></span>
     <br>
     <span class="normal-text">Execution Time: <b class="fieldName">@(isSuccessful ? Model.Submission.Result.Time.ToString() : "N/A")</b></span>
     <br>
@@ -154,6 +174,10 @@
     #outputArea
     {
         width: 100%;
+    }
+    
+    #outputListArea {
+        width: 50%;
     }
 
     .fieldName

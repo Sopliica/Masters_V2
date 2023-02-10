@@ -1,4 +1,5 @@
-﻿@using OnlineJudge.Models.Domain
+﻿@using OnlineJudge.Consts;
+@using OnlineJudge.Models.Domain
 @using OnlineJudge.Miscs
 @using OnlineJudge.Models.IO
 @using OnlineJudge.Parsing
@@ -22,6 +23,20 @@
         <b class="fieldName">Memory Limit (MB): </b>@Model.Value.MemoryLimitMB
         <br>
         <br>
+        @if (User.IsInRole(Roles.Administrator))
+        {
+            <b class="fieldName">Valid Outputs:</b>
+            <br>
+            <br>
+            @foreach (var output in Model.Value.AssignmentOutputs)
+            {
+                <textarea id="outputListArea" autocomplete="off" readonly="readonly">@output.Text</textarea>
+                <br>
+                <br>
+            }
+            <br>
+            <br>
+        }
         <hr class="fieldName">
         @await Html.PartialAsync("CodeEditor", new CodeEditorParams { AssignmentId = @Model.Value.Id, AvailableLanguages = Model.Value.AvailableLanguages})
     </div>
@@ -37,6 +52,12 @@ else
     {
         color: rgb(255, 255, 255);
     }
+
+    #outputListArea 
+    {
+        width: 50%;
+    }
+
     #content_box
     {
         margin-top: 15px;

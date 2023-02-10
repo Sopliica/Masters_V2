@@ -26,4 +26,4 @@ TIME: 10
 
 MEMORY: 15
 
-OUTPUT: ["Hello", "World"]
+OUTPUT: ["Hello Hello Hello Hello", "World"]

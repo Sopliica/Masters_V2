@@ -1,5 +1,6 @@
 ﻿@using OnlineJudge.Consts
 @using OnlineJudge.Models.Domain
+@using OnlineJudge.Services;
 @model List<Submission>
 @{
     ViewData["Title"] = "Online Judge";
@@ -25,13 +26,26 @@
         <tbody>
             @foreach (var submission in Model)
             {
-                var color = "green";
+                var color = "";
 
-                if (submission.Result == null || submission.Result.ExecutionStatus == ExecutionStatusEnum.Failed)
+                if (submission.Result == null)
                 {
-                    color = "red";
+                    color = "#dbab0a";
                 }
-                
+                else
+                {
+                    if (submission.Result.ExecutionStatus == ExecutionStatusEnum.Success)
+                    {
+                        var expected = submission.Assignment.AssignmentOutputs.Select(x => x.Text).ToList();
+                        var isOutputOk = OutputComparer.Compare(submission.Result.Output, expected);
+                        color = isOutputOk ? "#28a745" : "#d73a49";
+                    }
+                    else
+                    {
+                        color = "#d73a49";
+                    }
+                }
+
                 <tr>
                     <td scope="row">@submission.User.Email</td>
                     <td scope="row" style="background-color:@color"></td>

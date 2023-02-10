@@ -31,7 +31,6 @@
                         <a class="btn btn-info" asp-area="" asp-controller="Code" asp-action="View" asp-route-Id="@task.Id">Details</a>
                         @if (User.IsInRole(Roles.Administrator))
                         {
-                            <a class="btn btn-secondary" asp-area="" asp-controller="Code" asp-action="Delete" asp-route-Id="@task.Id">Edit (TODO)</a>
                             <a class="btn btn-danger" asp-area="" asp-controller="Code" asp-action="Delete" asp-route-Id="@task.Id">Delete</a>
                         }
                     </td>
