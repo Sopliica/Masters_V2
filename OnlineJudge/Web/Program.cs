@@ -46,7 +46,7 @@ using (var serviceScope = app.Services.CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<Context>();
     var hasher = serviceScope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
 
     if (!context.Users.Any())
     {
