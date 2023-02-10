@@ -49,7 +49,7 @@ using (var serviceScope = app.Services.CreateScope())
 
     if (!context.Users.Any())
     {
-        var user = new User("admin_online_judge@localhost", Roles.Administrator);
+        var user = new User("admin_ath@localhost", Roles.Administrator);
         var pw = new Random().Next(100_000_000, 999_999_999);
         File.WriteAllText("admin_passphrase.txt", pw.ToString());
         user.PasswordHash = hasher.HashPassword(user, pw.ToString());
