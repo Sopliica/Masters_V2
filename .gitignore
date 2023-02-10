@@ -404,3 +404,5 @@ OnlineJudge/db.db
 OnlineJudge/db.db-shm
 OnlineJudge/db.db-wal
 OnlineJudge/admin_passphrase.txt
+
+OnlineJudge/Web/output/*
