@@ -52,9 +52,19 @@ using (var serviceScope = app.Services.CreateScope())
     {
         var user = new User("admin_ath@localhost", Roles.Administrator);
 
-        var count = new Random().Next(30, 50);
-        var bytes = RandomNumberGenerator.GetBytes(15);
-        var passphrase = Convert.ToBase64String(bytes);
+        var passphrase = "";
+
+        if (app.Environment.IsDevelopment())
+        {
+            passphrase = "12345";
+        }
+        else
+        {
+            var count = new Random().Next(30, 50);
+            var bytes = RandomNumberGenerator.GetBytes(15);
+            passphrase = Convert.ToBase64String(bytes);
+        }
+
         File.WriteAllText("../admin_passphrase.txt", passphrase);
         user.PasswordHash = hasher.HashPassword(user, passphrase);
         await context.Users.AddAsync(user);
