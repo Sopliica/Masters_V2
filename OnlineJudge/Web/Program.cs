@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,8 +49,8 @@ using (var serviceScope = app.Services.CreateScope())
 
     if (!context.Users.Any())
     {
-        var user = new User("admin@localhost", Roles.Administrator);
-        var pw = 12345; // new Random().Next(100_000, 999_999);
+        var user = new User("admin_online_judge@localhost", Roles.Administrator);
+        var pw = new Random().Next(100_000_000, 999_999_999);
         File.WriteAllText("admin_passphrase.txt", pw.ToString());
         user.PasswordHash = hasher.HashPassword(user, pw.ToString());
         await context.Users.AddAsync(user);
@@ -64,6 +65,11 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

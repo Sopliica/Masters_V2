@@ -19,7 +19,7 @@
         @foreach (var user in Model)
         {
             <tr id="@user.Id">
-                <td scope="row">@user.Email</td>
+                <td scope="row">@user.Login</td>
                 <td scope="row">
                     <button type="button" class="btn btn-success" onclick="SendCode('@user.Id')">Activate User</button>
                 </td>

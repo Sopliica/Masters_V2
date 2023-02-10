@@ -165,7 +165,7 @@ public class CodeController : Controller
         if (tasks.Success)
         {
             var ordered = isAdmin ?
-                tasks.Value.OrderBy(x => x.User.Email).ToList() :
+                tasks.Value.OrderBy(x => x.User.Login).ToList() :
                 tasks.Value.OrderByDescending(x => x.Submitted).ToList();
 
             return View(ordered);

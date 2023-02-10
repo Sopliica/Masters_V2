@@ -27,16 +27,16 @@ namespace OnlineJudge.Services
             return context
                    .Users
                    .Where(x => x.Role == Roles.NotActivated)
-                   .Select(x => new UserDTO { Email = x.Email, Id = x.Id })
+                   .Select(x => new UserDTO { Login = x.Login, Id = x.Id })
                    .ToList();
         }
 
         public async Task<Result<(ClaimsIdentity Claims, AuthenticationProperties Properties)>> TrySignIn(SignInInput input)
         {
-            if (input == null || string.IsNullOrEmpty(input.Email) || string.IsNullOrEmpty(input.Password))
+            if (input == null || string.IsNullOrEmpty(input.Login) || string.IsNullOrEmpty(input.Password))
                 return Result.Fail<(ClaimsIdentity, AuthenticationProperties)>("Incomplete data");
 
-            var user = await context.Users.FirstOrDefaultAsync(x => x.Email == input.Email);
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Login == input.Login);
 
             if (user == null)
                 return Result.Fail<(ClaimsIdentity, AuthenticationProperties)>("Invalid credentials");
@@ -50,7 +50,7 @@ namespace OnlineJudge.Services
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Name, user.Login),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
@@ -67,15 +67,15 @@ namespace OnlineJudge.Services
 
         public async Task<Result<(ClaimsIdentity Claims, AuthenticationProperties Properties)>> TryRegister(SignInInput input)
         {
-            if (input == null || string.IsNullOrEmpty(input.Email) || string.IsNullOrEmpty(input.Password))
+            if (input == null || string.IsNullOrEmpty(input.Login) || string.IsNullOrEmpty(input.Password))
                 return Result.Fail<(ClaimsIdentity, AuthenticationProperties)>("Incomplete data");
 
-            var user = context.Users.FirstOrDefault(x => x.Email.ToLower() == input.Email.ToLower());
+            var user = context.Users.FirstOrDefault(x => x.Login.ToLower() == input.Login.ToLower());
 
             if (user != null)
-                return Result.Fail<(ClaimsIdentity, AuthenticationProperties)>("User with this email already exists");
+                return Result.Fail<(ClaimsIdentity, AuthenticationProperties)>("User with this login already exists");
 
-            user = new User(input.Email, Roles.NotActivated);
+            user = new User(input.Login, Roles.NotActivated);
             user.PasswordHash = hasher.HashPassword(user, input.Password);
 
             await context.Users.AddAsync(user);
@@ -83,7 +83,7 @@ namespace OnlineJudge.Services
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Name, user.Login),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
