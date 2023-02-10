@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 
 Log.Logger = new LoggerConfiguration()
 .WriteTo
-.File("logs/log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true, retainedFileCountLimit: 21)
+.File("../logs/log.txt", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true, retainedFileCountLimit: 21)
 .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
