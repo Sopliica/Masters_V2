@@ -1,9 +1,11 @@
 ﻿@using OnlineJudge.Models.IO
 @model CodeEditorParams
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/clike/clike.js"></script>
 <div id="CodeEditor">
     <form>
-        <script>
+        <script>                   
             let libs = {};
             let usedLibs = [];
 
@@ -180,6 +182,13 @@
         <br />
         <br />
         <textarea name="code" id="code" placeholder="Paste your code here..."></textarea>
+        <script>
+            var codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('code'), {
+                lineNumbers: true,
+                mode: 'text/x-c++src',
+                theme: 'default',
+            });
+        </script>
         <br />
         <br />
         @if (User.Identity.IsAuthenticated)
@@ -256,7 +265,7 @@
 <script>
     function SendCode() {
         var lang = document.getElementById("langs_dropdown").value;
-        var code = document.getElementById("code").value;
+        var code = codeMirrorEditor.getValue();
         var comp = document.getElementById("compilers_" + lang).value;
 
         let data = { Language: lang, Compiler: comp, Code: code, AssignmentId: '@Model.AssignmentId', Libraries: usedLibs };
@@ -287,5 +296,32 @@
                 alert("Error: " + result);
             });
         });
+    }
+    function changedLang(selectObject) {
+        var value = selectObject.value;
+        usedLibs = [];
+        document.getElementsByName("compiler_dropdown").forEach(x => x.selectedIndex = "0");
+        document.getElementsByName("compiler_dropdown").forEach(x => x.style.display = "none");
+        document.getElementById("compilers_" + value).style.display = "";
+        getLibs(value);
+        clearTab("used_libs");
+
+        var mode;
+        switch (value.toLowerCase()) {
+            case 'c':
+                mode = 'text/x-csrc';
+                break;
+            case 'c++':
+                mode = 'text/x-c++src';
+                break;
+            case 'java':
+                mode = 'text/x-java';
+                break;
+            default:
+                mode = 'text/plain';
+                break;
+        }
+        console.log("curr mode: " + mode);
+        codeMirrorEditor.setOption('mode', mode);
     }
 </script>
