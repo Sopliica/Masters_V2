@@ -11,6 +11,7 @@
     public class Options
     {
         public string userArguments { get; set; }
+        public ExecuteParameters executeParameters { get; set; }
         public Compileroptions compilerOptions { get; set; }
         public Filters filters { get; set; }
         public Tool[] tools { get; set; }
@@ -46,6 +47,10 @@
     {
         public string id { get; set; }
         public string version { get; set; }
+    }
+    public class ExecuteParameters
+    {
+        public string stdin { get; set; }
     }
 
 }

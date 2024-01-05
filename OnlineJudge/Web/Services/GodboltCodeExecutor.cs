@@ -29,6 +29,10 @@ namespace OnlineJudge.Services
                 options = new Options
                 {
                     userArguments = "",
+                    executeParameters = new ExecuteParameters
+                    {
+                        stdin = "Hello Hello Hello Hello"
+                    },
                     compilerOptions = new Compileroptions
                     {
                     },

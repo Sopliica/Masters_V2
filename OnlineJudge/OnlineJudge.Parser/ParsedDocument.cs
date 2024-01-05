@@ -11,5 +11,6 @@
         public int TimeLimitSeconds { get; set; }
 
         public int MemoryLimitMB { get; set; }
+        public string? CodeSample { get; set; }
     }
 }

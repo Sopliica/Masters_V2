@@ -18,7 +18,7 @@
         public string parsingTime { get; set; }
         public int filteredCount { get; set; }
         public Populararguments popularArguments { get; set; }
-        public Execresult execResult { get; set; }
+        public Execresult? execResult { get; set; }
     }
 
     public class Labeldefinitions

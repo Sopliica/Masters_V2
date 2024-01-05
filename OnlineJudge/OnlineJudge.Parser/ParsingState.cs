@@ -7,6 +7,7 @@
         TimeLimit,
         MemoryLimit,
         Output,
+        CodeExample,
         None
     }
 }

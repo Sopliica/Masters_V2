@@ -27,3 +27,8 @@ TIME: 10
 MEMORY: 15
 
 OUTPUT: ["Hello Hello Hello Hello", "World"]
+
+CODE SAMPLE: int main()
+{
+	int x = 0;
+}
