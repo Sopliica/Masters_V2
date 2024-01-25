@@ -1,12 +1,12 @@
 using OnlineJudge.Parsing;
 using OnlineJudge.Services;
 
-namespace OnlineJudge.Tests
+namespace OnlineJudge.Tests.UnitTests
 {
     public class UnitTest1
     {
         [Fact]
-        public void Test1()
+        public void ParserShouldParseInputCorrectlyOrginalTest()
         {
             var txt =
             """

@@ -1,127 +1,126 @@
-﻿using RestSharp;
+﻿using FluentAssertions;
 using Newtonsoft.Json;
-using OnlineJudge.Miscs;
-using OnlineJudge.Models.IO;
+using NSubstitute;
 using OnlineJudge.Models.Domain;
-using Microsoft.Extensions.Caching.Memory;
-using OnlineJudge.Models.Miscs;
+using OnlineJudge.Models.IO;
+using OnlineJudge.Services;
+using RestSharp;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Xunit;
 
-namespace OnlineJudge.Services
+namespace OnlineJudge.Services.Tests
 {
-    public class GodboltCodeExecutor : ICodeExecutorService
+    public class GodboltCodeExecutorTests
     {
-        private RestClient _client = new RestClient("https://godbolt.org/");
-        private readonly IMemoryCache _cache;
-
-        public GodboltCodeExecutor(IMemoryCache cache)
+        [Fact]
+        public async Task TryExecute_Should_Return_Success_Result_When_Response_Is_Successful_And_Execution_Is_Successful()
         {
-            _cache = cache;
-        }
-
-        public async Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code, List<SubmissionLibrary> libraries)
-        {
-            var requestData = new GodboltRequest
+            // Arrange
+            var expectedResult = new SubmissionResult(ExecutionStatusEnum.Success, "Output", 100);
+            var restResponse = new RestResponse
             {
-                lang = lang,
-                allowStoreCodeDebug = true,
-                source = code,
-                options = new Options
+                Content = JsonConvert.SerializeObject(new GodboltOutput
                 {
-                    userArguments = "",
-                    executeParameters = new ExecuteParameters
+                    execResult = new Execresult
                     {
-                        stdin = "Hello Hello Hello Hello"
-                    },
-                    compilerOptions = new Compileroptions
-                    {
-                    },
-                    tools = Array.Empty<Tool>(),
-                    filters = new Filters
-                    {
-                        execute = true
-                    },
-                    libraries = libraries.Select(x => new Library { id = x.LibraryId, version = x.LibraryVersionId }).ToArray()
-                }
+                        code = 0,
+                        stdout = new[] { new Stdout { text = "Output" } },
+                        execTime = "100"
+                    }
+                }),
+                StatusCode = System.Net.HttpStatusCode.OK
             };
 
-            Log.Logger.Information(JsonConvert.SerializeObject(requestData, Formatting.Indented));
+            var restClient = Substitute.For<IRestClient>();
+            restClient.PostAsync(Arg.Any<IRestRequest>()).Returns(Task.FromResult(restResponse));
 
-            var request = new RestRequest($"/api/compiler/{compiler}/compile", Method.Post);
-            request.AddJsonBody(requestData);
+            var memoryCache = Substitute.For<IMemoryCache>();
 
-            var response = await _client.PostAsync(request);
-            if (response.IsSuccessStatusCode)
-            {
-                var output = JsonConvert.DeserializeObject<GodboltOutput>(response.Content);
-                Log.Logger.Information(JsonConvert.SerializeObject(output, Formatting.Indented));
+            var executor = new GodboltCodeExecutor(memoryCache) { _client = restClient };
 
-                if (output.execResult.code == 0)
-                {
-                    var stdout = string.Join("", output.execResult.stdout.Select(x => x.text));
-                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Success, stdout, Convert.ToInt32(output.execResult.execTime)));
-                }
-                else
-                {
-                    var errMessage = $"Error: {string.Join(",", output.execResult.stderr) + string.Join(",", output.stderr)}";
-                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Failed, errMessage, Convert.ToInt32(output.execResult.execTime)));
-                }
-            }
-            else
-            {
-                Log.Logger.Information(response.Content);
-                return Result.Fail<SubmissionResult>("Network error");
-            }
+            // Act
+            var result = await executor.TryExecute("lang", "compiler", "code", new List<SubmissionLibrary>());
+
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedResult);
         }
 
-        public async Task<Result<List<LibraryDetails>>> GetLibraries(string lang)
+        [Fact]
+        public async Task TryExecute_Should_Return_Failure_Result_When_Response_Is_Not_Successful()
         {
-            var cacheKey = $"LibrariesGodboltCache_{lang}";
-            if (_cache.TryGetValue<List<LibraryDetails>>(cacheKey, out var list))
-            {
-                Console.WriteLine($"Using Library Cache: {lang}");
-                return Result.Ok(list);
-            }
+            // Arrange
+            var restResponse = new RestResponse { StatusCode = System.Net.HttpStatusCode.BadRequest };
+            var restClient = Substitute.For<IRestClient>();
+            restClient.PostAsync(Arg.Any<IRestRequest>()).Returns(Task.FromResult(restResponse));
 
-            var libsRequest = new RestRequest($"https://godbolt.org/api/libraries/" + lang, Method.Get);
-            libsRequest.AddHeader("Accept", "application/json");
-            var libsResponse = await _client.GetAsync<List<LibraryInfo>>(libsRequest);
+            var memoryCache = Substitute.For<IMemoryCache>();
 
-            var output = libsResponse
-                         .Select(x =>
-                         new LibraryDetails
-                         {
-                             Name = x.name,
-                             Id = x.id,
-                             Versions = x.versions
-                             .Select(v => new VersionDetails { VersionName = v.version, VersionId = v.id, Pathes = v.path.ToList() })
-                             .ToList()
-                         })
-                         .ToList();
+            var executor = new GodboltCodeExecutor(memoryCache) { _client = restClient };
 
-            _cache.Set(cacheKey, output, TimeSpan.FromHours(72));
-            return Result.Ok(output);
+            // Act
+            var result = await executor.TryExecute("lang", "compiler", "code", new List<SubmissionLibrary>());
+
+            // Assert
+            result.IsSuccess.Should().BeFalse();
         }
 
-        public async Task<Result<List<LanguageDetails>>> GetLangsAndCompilers()
+        [Fact]
+        public async Task GetLibraries_Should_Return_Success_Result_When_Response_Is_Successful()
         {
-            const string cacheKey = "LanguagesGodboltCache";
-            if (_cache.TryGetValue<List<LanguageDetails>>(cacheKey, out var list))
-                return Result.Ok(list);
+            // Arrange
+            var expectedOutput = new List<LibraryDetails>();
 
-            var langsRequest = new RestRequest($"https://godbolt.org/api/compilers?fields=id,name,lang", Method.Get);
-            langsRequest.AddHeader("Accept", "application/json");
-
-            var langsResponse = await _client.GetAsync<List<GodboltCompilersAndLangsList>>(langsRequest);
-
-            if (langsResponse == null)
+            var restResponse = new RestResponse
             {
-                return Result.Fail<List<LanguageDetails>>("Unable to load languages list");
-            }
+                Content = JsonConvert.SerializeObject(new List<LibraryInfo>()),
+                StatusCode = System.Net.HttpStatusCode.OK
+            };
 
-            var mapped = langsResponse.Select(x => new LanguageDetails { CompilerName = x.name, LanguageName = x.lang, CompilerId = x.id }).ToList();
-            _cache.Set(cacheKey, mapped, TimeSpan.FromHours(24));
-            return Result.Ok(mapped);
+            var restClient = Substitute.For<IRestClient>();
+            restClient.GetAsync<List<LibraryInfo>>(Arg.Any<IRestRequest>()).Returns(Task.FromResult(restResponse));
+
+            var memoryCache = Substitute.For<IMemoryCache>();
+
+            var executor = new GodboltCodeExecutor(memoryCache) { _client = restClient };
+
+            // Act
+            var result = await executor.GetLibraries("lang");
+
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedOutput);
+        }
+
+        [Fact]
+        public async Task GetLangsAndCompilers_Should_Return_Success_Result_When_Response_Is_Successful()
+        {
+            // Arrange
+            var expectedOutput = new List<LanguageDetails>();
+
+            var restResponse = new RestResponse
+            {
+                Content = JsonConvert.SerializeObject(new List<GodboltCompilersAndLangsList>()),
+                StatusCode = System.Net.HttpStatusCode.OK
+            };
+
+            var restClient = Substitute.For<IRestClient>();
+            restClient.GetAsync<List<GodboltCompilersAndLangsList>>(Arg.Any<IRestRequest>()).Returns(Task.FromResult(restResponse));
+
+            var memoryCache = Substitute.For<IMemoryCache>();
+
+            var executor = new GodboltCodeExecutor(memoryCache) { _client = restClient };
+
+            // Act
+            var result = await executor.GetLangsAndCompilers();
+
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().BeEquivalentTo(expectedOutput);
         }
     }
 }
