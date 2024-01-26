@@ -2,7 +2,7 @@
 {
     public class Assignment
     {
-        public Guid Id { get; private set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Title { get; set; }
 
