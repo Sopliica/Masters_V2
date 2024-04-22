@@ -6,8 +6,7 @@
         Description,
         TimeLimit,
         MemoryLimit,
-        Output,
-        CodeExample,
+        TestCases,
         None
     }
 }

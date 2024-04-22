@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using System.Text.Json.Serialization;
-using Newtonsoft.Json;
 using OnlineJudge.Miscs;
 
 namespace OnlineJudge.Parsing;
@@ -11,13 +9,11 @@ public class Parser
     private const string DESCRIPTION_SYNTAX = "DESC: ";
     private const string TIME_SYNTAX = "TIME: ";
     private const string MEMORY_SYNTAX = "MEMORY: ";
-    private const string OUTPUT_SYNTAX = "OUTPUT: ";
-    private const string CODE_SAMPLE = "CODE SAMPLE: ";
+    private const string TESTCASES_SYNTAX = "TESTCASES:";
 
-    private StringBuilder _titleBuilder = new StringBuilder();
-    private StringBuilder _descriptionBuilder = new StringBuilder();
-    private StringBuilder _outputBuilder = new StringBuilder();
-    private StringBuilder _codeSampleBuilder = new StringBuilder();
+    private StringBuilder _titleBuilder = new();
+    private StringBuilder _descriptionBuilder = new();
+    private StringBuilder _testCasesBuilder = new();
 
     private int? _timeLimit;
     private int? _memoryLimit;
@@ -68,8 +64,7 @@ public class Parser
             Description = _descriptionBuilder.ToString().TrimEnd(),
             TimeLimitSeconds = _timeLimit.Value,
             MemoryLimitMB = _memoryLimit.Value,
-            Output = JsonConvert.DeserializeObject<List<string>>(_outputBuilder.ToString()),
-            CodeSample = _codeSampleBuilder.ToString().TrimEnd()
+            TestCases = _testCasesBuilder.ToString()
         };
 
         return Result.Ok(doc);
@@ -89,22 +84,8 @@ public class Parser
         if (_descriptionBuilder.Length == 0)
             _Errors.Add($"Description was not specified. Define description using \"{DESCRIPTION_SYNTAX}\" syntax.");
 
-        if (_outputBuilder.Length == 0)
-            _Errors.Add($"Output was not specified. Define output using \"{OUTPUT_SYNTAX}\" syntax.");
-
-        var list = JsonConvert.DeserializeObject<List<string>>(_outputBuilder.ToString());
-
-        if (list == null)
-            _Errors.Add("Output's value is not valid string json array. Try something like: [\"value1\", \"value2\"].");
-
-        if (list != null && list.Count == 0)
-            _Errors.Add("Output list requires to define at least one sample output e.g [\"value1\", \"value2\"].");
-
-        if (list != null && list.Any(string.IsNullOrWhiteSpace))
-            _Errors.Add("Output list cannot contain empty elements. Try something like e.g [\"value1\", \"value2\"].");
-
-        if (_Errors.Any())
-            return Result.Fail(string.Join(Environment.NewLine, _Errors));
+        if (_testCasesBuilder.Length == 0) // Validation for test cases
+            _Errors.Add($"Test cases were not specified. Define test cases using \"{TESTCASES_SYNTAX}\" syntax.");
 
         return Result.Ok();
     }
@@ -125,9 +106,9 @@ public class Parser
                 _descriptionBuilder.AppendLine(line);
                 return false;
             }
-            case ParsingState.Output:
+            case ParsingState.TestCases: // Added case for test cases
             {
-                _outputBuilder.AppendLine(line);
+                _testCasesBuilder.AppendLine(line);
                 return false;
             }
             case ParsingState.TimeLimit:
@@ -161,11 +142,6 @@ public class Parser
 
                 return true;
             }
-            case ParsingState.CodeExample:
-            {
-                _codeSampleBuilder.AppendLine(line);    
-                return true;
-            }
             case ParsingState.None:
             {
                 if (!string.IsNullOrWhiteSpace(line))
@@ -197,14 +173,9 @@ public class Parser
         {
             return Result.Ok((ParsingState.MemoryLimit, RemoveSyntax(line, MEMORY_SYNTAX)));
         }
-        else if (line.StartsWith(OUTPUT_SYNTAX))
+        else if (line.StartsWith(TESTCASES_SYNTAX)) // Added detection logic for test cases
         {
-            return Result.Ok((ParsingState.Output, RemoveSyntax(line, OUTPUT_SYNTAX)));
-        }
-        else if(line.StartsWith(CODE_SAMPLE))
-        {
-            Console.WriteLine("xd");
-            return Result.Ok((ParsingState.CodeExample, RemoveSyntax(line, CODE_SAMPLE)));  
+            return Result.Ok((ParsingState.TestCases, RemoveSyntax(line, TESTCASES_SYNTAX)));
         }
 
         return Result.Fail<(ParsingState NewState, string LineWithoutItsSyntax)>("State change not detected");

@@ -5,6 +5,7 @@ using OnlineJudge.Models.Domain;
 using OnlineJudge.Models.IO;
 using Microsoft.EntityFrameworkCore;
 using OnlineJudge.Consts;
+using Newtonsoft.Json;
 
 namespace OnlineJudge.Services
 {
@@ -19,6 +20,13 @@ namespace OnlineJudge.Services
             this.executor = executor;
         }
 
+        private List<TestCase> mapTestCases(string testCases)
+        {
+            List<TestCase> result = JsonConvert.DeserializeObject<List<TestCase>>(testCases);
+
+            return result;
+        }
+
         public Result<Guid> Add(ParsedDocument doc)
         {
             var assignment = new Assignment
@@ -27,7 +35,7 @@ namespace OnlineJudge.Services
                 Description = doc.Description,
                 MemoryLimitMB = doc.MemoryLimitMB,
                 TimeLimitSeconds = doc.TimeLimitSeconds,
-                AssignmentOutputs = doc.Output.Select(x => new AssignmentOutput { Text = x} ).ToList(),
+                TestCases = mapTestCases(doc.TestCases)
             };
 
             context.Assignments.Add(assignment);
@@ -38,7 +46,7 @@ namespace OnlineJudge.Services
 
         public Result<Assignment> GetAssignment(Guid Id)
         {
-            var assignment = context.Assignments.Include(x => x.AssignmentOutputs).FirstOrDefault(x => x.Id == Id);
+            var assignment = context.Assignments.Include(x => x.Id).FirstOrDefault(x => x.Id == Id);
 
             if (assignment == null || assignment.IsDeleted)
                 return Result.Fail<Assignment>("Not found");
@@ -125,7 +133,7 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                .ThenInclude(x => x.AssignmentOutputs)
+                //.ThenInclude(x => x.AssignmentOutputs)
                 .Include(x => x.Result)
                 .ToList();
 
@@ -137,7 +145,7 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                .ThenInclude(x => x.AssignmentOutputs)
+                //.ThenInclude(x => x.AssignmentOutputs)
                 .Include(x => x.Result)
                 .Where(x => x.UserId == userId)
                 .ToList();
@@ -150,7 +158,7 @@ namespace OnlineJudge.Services
             var submission = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                .ThenInclude(x => x.AssignmentOutputs)
+                //.ThenInclude(x => x.AssignmentOutputs)
                 .Include(x => x.Result)
                 .Include(x => x.Libraries)
                 .FirstOrDefault(x => x.Id == Id);

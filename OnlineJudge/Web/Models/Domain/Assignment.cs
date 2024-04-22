@@ -1,4 +1,6 @@
-﻿namespace OnlineJudge.Models.Domain
+﻿using OnlineJudge.Parsing;
+
+namespace OnlineJudge.Models.Domain
 {
     public class Assignment
     {
@@ -14,7 +16,7 @@
 
         public bool IsDeleted { get; set; } = false;
 
-        public List<AssignmentOutput> AssignmentOutputs { get; set; } = new List<AssignmentOutput>();
+        public List<TestCase> TestCases { get; set; } = new List<TestCase>();
 
         public List<Submission> Submissions { get; set; } = new List<Submission>();
     }

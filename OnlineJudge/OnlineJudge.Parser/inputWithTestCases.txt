@@ -26,5 +26,14 @@ TIME: 10
 
 MEMORY: 15
 
-OUTPUT: ["Hello Hello Hello Hello", "World"]
+TESTCASES: 
+{
+	adsasd, 5
+	asdasdasd
+	asd222223
+	asdddd222, 77
+	sfsf33333 21312312 1244444, 5
+	111133333, 5 5 6 7 3 11 111
+	5 5 123321090, 5
+}
 

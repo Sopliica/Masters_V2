@@ -36,7 +36,7 @@
                 {
                     if (submission.Result.ExecutionStatus == ExecutionStatusEnum.Success)
                     {
-                        var expected = submission.Assignment.AssignmentOutputs.Select(x => x.Text).ToList();
+                        var expected = submission.Assignment.TestCases.Select(x => x.Output).ToList();
                         var isOutputOk = OutputComparer.Compare(submission.Result.Output, expected);
                         color = isOutputOk ? "#28a745" : "#d73a49";
                     }

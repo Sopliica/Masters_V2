@@ -31,9 +31,9 @@
         <b class="fieldName">Valid Outputs:</b>
         <br>
         <br>
-        @foreach (var output in Model.Submission.Assignment.AssignmentOutputs)
+        @foreach (var output in Model.Submission.Assignment.TestCases)
         {
-            <textarea id="outputListArea" autocomplete="off" readonly="readonly">@output.Text</textarea>
+            <textarea id="outputListArea" autocomplete="off" readonly="readonly">@output.Output</textarea>
             <br>
             <br>
         }

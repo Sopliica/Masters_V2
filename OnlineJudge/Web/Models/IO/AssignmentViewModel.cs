@@ -1,4 +1,5 @@
 ﻿using OnlineJudge.Models.Miscs;
+using OnlineJudge.Parsing;
 
 namespace OnlineJudge.Models.Domain
 {
@@ -17,7 +18,7 @@ namespace OnlineJudge.Models.Domain
             TimeLimitSeconds = value.TimeLimitSeconds;
             MemoryLimitMB = value.MemoryLimitMB;
             IsDeleted = value.IsDeleted;
-            AssignmentOutputs = value.AssignmentOutputs;
+            TestCases = value.TestCases;
         }
 
         public Guid Id { get; set; }
@@ -34,6 +35,6 @@ namespace OnlineJudge.Models.Domain
 
         public List<LanguageDetails> AvailableLanguages { get; set; } = new List<LanguageDetails>();
 
-        public List<AssignmentOutput> AssignmentOutputs { get; set; } = new List<AssignmentOutput>();
+        public List<TestCase> TestCases { get; set; } = new List<TestCase>();
     }
 }
