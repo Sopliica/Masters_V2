@@ -20,13 +20,6 @@ namespace OnlineJudge.Services
             this.executor = executor;
         }
 
-        private List<TestCase> mapTestCases(string testCases)
-        {
-            List<TestCase> result = JsonConvert.DeserializeObject<List<TestCase>>(testCases);
-
-            return result;
-        }
-
         public Result<Guid> Add(ParsedDocument doc)
         {
             var assignment = new Assignment
@@ -46,7 +39,7 @@ namespace OnlineJudge.Services
 
         public Result<Assignment> GetAssignment(Guid Id)
         {
-            var assignment = context.Assignments.Include(x => x.Id).FirstOrDefault(x => x.Id == Id);
+            var assignment = context.Assignments.Include(x => x.TestCases).FirstOrDefault(x => x.Id == Id);
 
             if (assignment == null || assignment.IsDeleted)
                 return Result.Fail<Assignment>("Not found");
@@ -133,7 +126,7 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                //.ThenInclude(x => x.AssignmentOutputs)
+                .ThenInclude(x => x.TestCases)
                 .Include(x => x.Result)
                 .ToList();
 
@@ -145,7 +138,7 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                //.ThenInclude(x => x.AssignmentOutputs)
+                .ThenInclude(x => x.TestCases)
                 .Include(x => x.Result)
                 .Where(x => x.UserId == userId)
                 .ToList();
@@ -158,7 +151,7 @@ namespace OnlineJudge.Services
             var submission = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                //.ThenInclude(x => x.AssignmentOutputs)
+                .ThenInclude(x => x.TestCases)
                 .Include(x => x.Result)
                 .Include(x => x.Libraries)
                 .FirstOrDefault(x => x.Id == Id);
@@ -188,6 +181,13 @@ namespace OnlineJudge.Services
             context.Entry(submission).State = EntityState.Modified;
             context.Entry(submission).Reference(nameof(Submission.Result)).IsModified = true;
             await context.SaveChangesAsync();
+        }
+
+        private List<TestCase> mapTestCases(string testCases)
+        {
+            List<TestCase> result = JsonConvert.DeserializeObject<List<TestCase>>(testCases);
+
+            return result;
         }
     }
 }

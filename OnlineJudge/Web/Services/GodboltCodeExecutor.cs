@@ -19,7 +19,12 @@ namespace OnlineJudge.Services
             _cache = cache;
         }
 
-        public async Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code, List<SubmissionLibrary> libraries)
+        public async Task<Result<SubmissionResult>> TryExecute(
+            string lang,
+            string compiler,
+            string code,
+            List<SubmissionLibrary> libraries,
+            string stdin)
         {
             var requestData = new GodboltRequest
             {
@@ -31,7 +36,7 @@ namespace OnlineJudge.Services
                     userArguments = "",
                     executeParameters = new ExecuteParameters
                     {
-                        stdin = "Hello Hello Hello Hello"
+                        stdin = stdin
                     },
                     compilerOptions = new Compileroptions
                     {

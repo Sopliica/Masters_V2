@@ -45,26 +45,6 @@ namespace OnlineJudge.Migrations
                     b.ToTable("Assignments");
                 });
 
-            modelBuilder.Entity("OnlineJudge.Models.Domain.AssignmentOutput", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("AssignmentId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignmentId");
-
-                    b.ToTable("AssignmentOutput");
-                });
-
             modelBuilder.Entity("OnlineJudge.Models.Domain.Submission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -185,11 +165,28 @@ namespace OnlineJudge.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("OnlineJudge.Models.Domain.AssignmentOutput", b =>
+            modelBuilder.Entity("OnlineJudge.Parsing.TestCase", b =>
                 {
-                    b.HasOne("OnlineJudge.Models.Domain.Assignment", null)
-                        .WithMany("AssignmentOutputs")
-                        .HasForeignKey("AssignmentId");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("AssignmentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Input")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Output")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignmentId");
+
+                    b.ToTable("TestCase");
                 });
 
             modelBuilder.Entity("OnlineJudge.Models.Domain.Submission", b =>
@@ -224,11 +221,18 @@ namespace OnlineJudge.Migrations
                         .HasForeignKey("SubmissionId");
                 });
 
+            modelBuilder.Entity("OnlineJudge.Parsing.TestCase", b =>
+                {
+                    b.HasOne("OnlineJudge.Models.Domain.Assignment", null)
+                        .WithMany("TestCases")
+                        .HasForeignKey("AssignmentId");
+                });
+
             modelBuilder.Entity("OnlineJudge.Models.Domain.Assignment", b =>
                 {
-                    b.Navigation("AssignmentOutputs");
-
                     b.Navigation("Submissions");
+
+                    b.Navigation("TestCases");
                 });
 
             modelBuilder.Entity("OnlineJudge.Models.Domain.Submission", b =>

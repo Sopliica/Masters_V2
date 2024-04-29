@@ -57,18 +57,19 @@ namespace OnlineJudge.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AssignmentOutput",
+                name: "TestCase",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Text = table.Column<string>(type: "TEXT", nullable: false),
+                    Input = table.Column<string>(type: "TEXT", nullable: false),
+                    Output = table.Column<string>(type: "TEXT", nullable: false),
                     AssignmentId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AssignmentOutput", x => x.Id);
+                    table.PrimaryKey("PK_TestCase", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AssignmentOutput_Assignments_AssignmentId",
+                        name: "FK_TestCase_Assignments_AssignmentId",
                         column: x => x.AssignmentId,
                         principalTable: "Assignments",
                         principalColumn: "Id");
@@ -131,11 +132,6 @@ namespace OnlineJudge.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AssignmentOutput_AssignmentId",
-                table: "AssignmentOutput",
-                column: "AssignmentId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SubmissionLibrary_SubmissionId",
                 table: "SubmissionLibrary",
                 column: "SubmissionId");
@@ -154,16 +150,21 @@ namespace OnlineJudge.Migrations
                 name: "IX_Submissions_UserId",
                 table: "Submissions",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TestCase_AssignmentId",
+                table: "TestCase",
+                column: "AssignmentId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AssignmentOutput");
+                name: "SubmissionLibrary");
 
             migrationBuilder.DropTable(
-                name: "SubmissionLibrary");
+                name: "TestCase");
 
             migrationBuilder.DropTable(
                 name: "Submissions");

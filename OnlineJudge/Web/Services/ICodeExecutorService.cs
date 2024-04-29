@@ -6,7 +6,11 @@ namespace OnlineJudge.Services
 {
     public interface ICodeExecutorService
     {
-        public Task<Result<SubmissionResult>> TryExecute(string lang, string compiler, string code, List<SubmissionLibrary> libraries);
+        public Task<Result<SubmissionResult>> TryExecute(
+            string lang,
+            string compiler,
+            string code,
+            List<SubmissionLibrary> libraries);
 
         public Task<Result<List<LanguageDetails>>> GetLangsAndCompilers();
 
