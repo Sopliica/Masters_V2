@@ -47,7 +47,7 @@ namespace OnlineJudge.Services
                         foreach (var execution in executions)
                         {
                             if (execution.Result != null && execution.Result.AttemptedExecutionsCount > 1)
-                            {
+                            {                               
                                 Log.Logger.Information("skipping execution");
                                 continue;
                             }
