@@ -165,9 +165,14 @@ namespace OnlineJudge.Services
             return Result.Ok(submission);
         }
 
-        public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission)
+        public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission, string input)
         {
-            var result = await executor.TryExecute(submission.Language, submission.Compiler, submission.Code, submission.Libraries);
+            var result = await executor.TryExecute(
+                submission.Language,
+                submission.Compiler,
+                submission.Code,
+                submission.Libraries,
+                input);
             return result;
         }
 

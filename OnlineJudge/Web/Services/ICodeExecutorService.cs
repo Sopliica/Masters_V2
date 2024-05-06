@@ -10,7 +10,8 @@ namespace OnlineJudge.Services
             string lang,
             string compiler,
             string code,
-            List<SubmissionLibrary> libraries);
+            List<SubmissionLibrary> libraries,
+            string stdin);
 
         public Task<Result<List<LanguageDetails>>> GetLangsAndCompilers();
 

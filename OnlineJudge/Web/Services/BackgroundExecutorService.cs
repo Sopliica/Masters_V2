@@ -38,12 +38,14 @@ namespace OnlineJudge.Services
                         var executions = ctx.Submissions
                             .Include(x => x.User)
                             .Include(x => x.Assignment)
+                            .ThenInclude(x => x.TestCases)
                             .Include(x => x.Result)
                             .Include(x => x.Libraries)
                             .Where(x => x.Result == null || x.Result.ExecutionStatus == ExecutionStatusEnum.NetworkError)
                             .OrderByDescending(x => x.Submitted)
                             .ToList();
 
+                        
                         foreach (var execution in executions)
                         {
                             if (execution.Result != null && execution.Result.AttemptedExecutionsCount > 1)
@@ -54,22 +56,25 @@ namespace OnlineJudge.Services
 
                             try
                             {
-                                var result = cs.ExecuteCode(execution).Result;
+                                foreach (var testCase in execution.Assignment.TestCases)
+                                {
+                                    var result = cs.ExecuteCode(execution, testCase.Input).Result;
 
-                                if (result.Success)
-                                {
-                                    cs.UpdateSubmissionResult(execution, result.Value).Wait();
-                                }
-                                else
-                                {
-                                    var newStatus = new SubmissionResult
+                                    if (result.Success)
                                     {
-                                        ExecutionStatus = ExecutionStatusEnum.Failed,
-                                        Output = result.Error,
-                                        Time = -1
-                                    };
+                                        cs.UpdateSubmissionResult(execution, result.Value).Wait();
+                                    }
+                                    else
+                                    {
+                                        var newStatus = new SubmissionResult
+                                        {
+                                            ExecutionStatus = ExecutionStatusEnum.Failed,
+                                            Output = result.Error,
+                                            Time = -1
+                                        };
 
-                                    cs.UpdateSubmissionResult(execution, newStatus).Wait();
+                                        cs.UpdateSubmissionResult(execution, newStatus).Wait();
+                                    }
                                 }
                             }
                             catch (Exception ex)

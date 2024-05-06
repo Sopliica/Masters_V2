@@ -15,13 +15,9 @@
         }
 
         public Guid Id { get; set; } = Guid.NewGuid();
-
         public string Output { get; set; }
-
         public int Time { get; set; }
-
         public int AttemptedExecutionsCount { get; set; } = 0;
-
         public ExecutionStatusEnum ExecutionStatus { get; set; }
     }
 }

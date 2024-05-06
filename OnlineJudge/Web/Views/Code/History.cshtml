@@ -36,8 +36,15 @@
                 {
                     if (submission.Result.ExecutionStatus == ExecutionStatusEnum.Success)
                     {
-                        var expected = submission.Assignment.TestCases.Select(x => x.Output).ToList();
-                        var isOutputOk = OutputComparer.Compare(submission.Result.Output, expected);
+                        var isOutputOk = true;
+                        foreach (var testCase in submission.Assignment.TestCases)
+                        {
+                            if (testCase.Output != submission.Result.Output)
+                            {
+                                isOutputOk = false;
+                                break;
+                            }
+                        }
                         color = isOutputOk ? "#28a745" : "#d73a49";
                     }
                     else

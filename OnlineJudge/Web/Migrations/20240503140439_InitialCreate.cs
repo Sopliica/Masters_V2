@@ -28,21 +28,6 @@ namespace OnlineJudge.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SubmissionResult",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Output = table.Column<string>(type: "TEXT", nullable: false),
-                    Time = table.Column<int>(type: "INTEGER", nullable: false),
-                    AttemptedExecutionsCount = table.Column<int>(type: "INTEGER", nullable: false),
-                    ExecutionStatus = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SubmissionResult", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -73,6 +58,38 @@ namespace OnlineJudge.Migrations
                         column: x => x.AssignmentId,
                         principalTable: "Assignments",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubmissionLibrary",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    LibraryId = table.Column<string>(type: "TEXT", nullable: false),
+                    LibraryName = table.Column<string>(type: "TEXT", nullable: false),
+                    LibraryVersion = table.Column<string>(type: "TEXT", nullable: false),
+                    LibraryVersionId = table.Column<string>(type: "TEXT", nullable: false),
+                    SubmissionId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubmissionLibrary", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubmissionResult",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Output = table.Column<string>(type: "TEXT", nullable: false),
+                    Time = table.Column<int>(type: "INTEGER", nullable: false),
+                    AttemptedExecutionsCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    ExecutionStatus = table.Column<int>(type: "INTEGER", nullable: false),
+                    SubmissionId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubmissionResult", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -110,30 +127,14 @@ namespace OnlineJudge.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "SubmissionLibrary",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    LibraryId = table.Column<string>(type: "TEXT", nullable: false),
-                    LibraryName = table.Column<string>(type: "TEXT", nullable: false),
-                    LibraryVersion = table.Column<string>(type: "TEXT", nullable: false),
-                    LibraryVersionId = table.Column<string>(type: "TEXT", nullable: false),
-                    SubmissionId = table.Column<Guid>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SubmissionLibrary", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SubmissionLibrary_Submissions_SubmissionId",
-                        column: x => x.SubmissionId,
-                        principalTable: "Submissions",
-                        principalColumn: "Id");
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_SubmissionLibrary_SubmissionId",
                 table: "SubmissionLibrary",
+                column: "SubmissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubmissionResult_SubmissionId",
+                table: "SubmissionResult",
                 column: "SubmissionId");
 
             migrationBuilder.CreateIndex(
@@ -155,11 +156,29 @@ namespace OnlineJudge.Migrations
                 name: "IX_TestCase_AssignmentId",
                 table: "TestCase",
                 column: "AssignmentId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_SubmissionLibrary_Submissions_SubmissionId",
+                table: "SubmissionLibrary",
+                column: "SubmissionId",
+                principalTable: "Submissions",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_SubmissionResult_Submissions_SubmissionId",
+                table: "SubmissionResult",
+                column: "SubmissionId",
+                principalTable: "Submissions",
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_SubmissionResult_Submissions_SubmissionId",
+                table: "SubmissionResult");
+
             migrationBuilder.DropTable(
                 name: "SubmissionLibrary");
 

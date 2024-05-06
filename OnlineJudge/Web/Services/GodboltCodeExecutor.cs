@@ -23,7 +23,8 @@ namespace OnlineJudge.Services
             string lang,
             string compiler,
             string code,
-            List<SubmissionLibrary> libraries)
+            List<SubmissionLibrary> libraries,
+            string stdin)
         {
             var requestData = new GodboltRequest
             {
@@ -35,7 +36,7 @@ namespace OnlineJudge.Services
                     userArguments = "",
                     executeParameters = new ExecuteParameters
                     {
-                        stdin = "elo"
+                        stdin = stdin
                     },
                     compilerOptions = new Compileroptions
                     {

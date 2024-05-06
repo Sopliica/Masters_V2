@@ -11,7 +11,7 @@ using OnlineJudge.Database;
 namespace OnlineJudge.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240422202504_InitialCreate")]
+    [Migration("20240503140439_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -137,10 +137,15 @@ namespace OnlineJudge.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("SubmissionId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Time")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SubmissionId");
 
                     b.ToTable("SubmissionResult");
                 });
@@ -224,6 +229,13 @@ namespace OnlineJudge.Migrations
                         .HasForeignKey("SubmissionId");
                 });
 
+            modelBuilder.Entity("OnlineJudge.Models.Domain.SubmissionResult", b =>
+                {
+                    b.HasOne("OnlineJudge.Models.Domain.Submission", null)
+                        .WithMany("Results")
+                        .HasForeignKey("SubmissionId");
+                });
+
             modelBuilder.Entity("OnlineJudge.Parsing.TestCase", b =>
                 {
                     b.HasOne("OnlineJudge.Models.Domain.Assignment", null)
@@ -241,6 +253,8 @@ namespace OnlineJudge.Migrations
             modelBuilder.Entity("OnlineJudge.Models.Domain.Submission", b =>
                 {
                     b.Navigation("Libraries");
+
+                    b.Navigation("Results");
                 });
 
             modelBuilder.Entity("OnlineJudge.Models.Domain.User", b =>
