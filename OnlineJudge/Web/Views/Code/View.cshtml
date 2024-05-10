@@ -23,20 +23,21 @@
         <b class="fieldName">Memory Limit (MB): </b>@Model.Value.MemoryLimitMB
         <br>
         <br>
-        @if (User.IsInRole(Roles.Administrator))
-        {
-            <b class="fieldName">Valid Outputs:</b>
-            <br>
-            <br>
-            @foreach (var output in Model.Value.TestCases)
-            {
-                <textarea id="outputListArea" autocomplete="off" readonly="readonly">@output.Output</textarea>
-                <br>
-                <br>
-            }
-            <br>
-            <br>
-        }
+        <b class="fieldName">Example Input:</b>
+        <br>
+        <br>
+    
+        <textarea id="outputListArea" autocomplete="off" readonly="readonly">@Model.Value.TestCases.First().Input</textarea>
+        <br>
+        <br>
+
+        <b class="fieldName">Example Output:</b>
+        <br>
+        <br>
+
+            <textarea id="outputListArea" autocomplete="off" readonly="readonly">@Model.Value.TestCases.First().Output</textarea>
+        <br>
+        <br>
         <hr class="fieldName">
         @await Html.PartialAsync("CodeEditor", new CodeEditorParams { AssignmentId = @Model.Value.Id, AvailableLanguages = Model.Value.AvailableLanguages})
     </div>

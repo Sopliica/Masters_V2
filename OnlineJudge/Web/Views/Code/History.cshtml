@@ -34,18 +34,19 @@
                 }
                 else
                 {
-                    if (submission.Result.ExecutionStatus == ExecutionStatusEnum.Success)
+                    var isOutputOK = false;
+                    if (submission.Assignment.TestCases.Count == submission.Results.Count)
                     {
-                        var isOutputOk = true;
-                        foreach (var testCase in submission.Assignment.TestCases)
+                        isOutputOK = true;
+                        for (int i = 0; i < submission.Assignment.TestCases.Count; i++)
                         {
-                            if (testCase.Output != submission.Result.Output)
+                            if (submission.Results[i].Output != submission.Assignment.TestCases[i].Output)
                             {
-                                isOutputOk = false;
+                                isOutputOK = false;
                                 break;
                             }
                         }
-                        color = isOutputOk ? "#28a745" : "#d73a49";
+                        color = isOutputOK ? "#28a745" : "#d73a49";
                     }
                     else
                     {
