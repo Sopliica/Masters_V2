@@ -11,7 +11,7 @@ using OnlineJudge.Database;
 namespace OnlineJudge.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240510182746_InitialCreate")]
+    [Migration("20240510184903_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -126,6 +126,9 @@ namespace OnlineJudge.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ExecutionStatus")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Lp")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Output")

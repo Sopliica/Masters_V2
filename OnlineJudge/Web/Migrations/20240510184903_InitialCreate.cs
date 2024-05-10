@@ -121,6 +121,7 @@ namespace OnlineJudge.Migrations
                     AttemptedExecutionsCount = table.Column<int>(type: "INTEGER", nullable: false),
                     ExecutionStatus = table.Column<int>(type: "INTEGER", nullable: false),
                     SubmissionId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Lp = table.Column<int>(type: "INTEGER", nullable: false),
                     SubmissionId1 = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>

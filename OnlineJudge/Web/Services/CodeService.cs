@@ -156,7 +156,7 @@ namespace OnlineJudge.Services
                 .Include(x => x.Assignment)
                 .ThenInclude(x => x.TestCases.OrderBy(l => l.Lp))
                 .Include(x => x.Result)
-                .Include(x => x.Results)
+                .Include(x => x.Results.OrderBy(l => l.Lp))
                 .Include(x => x.Libraries)
                 .FirstOrDefault(x => x.Id == Id);
 

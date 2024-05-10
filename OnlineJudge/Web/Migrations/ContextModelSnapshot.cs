@@ -125,6 +125,9 @@ namespace OnlineJudge.Migrations
                     b.Property<int>("ExecutionStatus")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Lp")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Output")
                         .IsRequired()
                         .HasColumnType("TEXT");
