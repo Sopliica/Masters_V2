@@ -6,6 +6,7 @@ using OnlineJudge.Models.IO;
 using Microsoft.EntityFrameworkCore;
 using OnlineJudge.Consts;
 using Newtonsoft.Json;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace OnlineJudge.Services
 {
@@ -126,8 +127,9 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                .ThenInclude(x => x.TestCases)
+                .ThenInclude(x => x.TestCases.OrderBy(l => l.Lp))
                 .Include(x => x.Result)
+                .Include(x => x.Results)
                 .ToList();
 
             return Result.Ok(submissions);
@@ -138,8 +140,9 @@ namespace OnlineJudge.Services
             var submissions = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                .ThenInclude(x => x.TestCases)
+                .ThenInclude(x => x.TestCases.OrderBy(l => l.Lp))
                 .Include(x => x.Result)
+                .Include(x => x.Results)
                 .Where(x => x.UserId == userId)
                 .ToList();
 
@@ -151,8 +154,9 @@ namespace OnlineJudge.Services
             var submission = context.Submissions
                 .Include(x => x.User)
                 .Include(x => x.Assignment)
-                .ThenInclude(x => x.TestCases)
+                .ThenInclude(x => x.TestCases.OrderBy(l => l.Lp))
                 .Include(x => x.Result)
+                .Include(x => x.Results)
                 .Include(x => x.Libraries)
                 .FirstOrDefault(x => x.Id == Id);
 
@@ -165,33 +169,43 @@ namespace OnlineJudge.Services
             return Result.Ok(submission);
         }
 
-        public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission, string input)
+        public async Task<Result<SubmissionResult>> ExecuteCode(Submission submission, string input, int Lp)
         {
             var result = await executor.TryExecute(
                 submission.Language,
                 submission.Compiler,
                 submission.Code,
                 submission.Libraries,
-                input);
+                input,
+                Lp);
             return result;
         }
 
-        internal async Task UpdateSubmissionResult(Submission submission, SubmissionResult result)
+        internal async Task UpdateSubmissionResult(Submission submission, List<SubmissionResult> results)
         {
             context.Attach(submission);
-            var currentCount = submission.Result?.AttemptedExecutionsCount ?? 0;
-            submission.Result = result;
-            submission.Result.AttemptedExecutionsCount = currentCount + 1;
-            context.Entry(result).State = EntityState.Added;
+            submission.Result = results.Last();
+            submission.Results = results;
+            foreach (var result in results)
+            {
+                var currentCount = submission.Result?.AttemptedExecutionsCount ?? 0;
+                result.AttemptedExecutionsCount = currentCount + 1;
+                context.Entry(result).State = EntityState.Added;
+                
+            }
             context.Entry(submission).State = EntityState.Modified;
             context.Entry(submission).Reference(nameof(Submission.Result)).IsModified = true;
             await context.SaveChangesAsync();
+
         }
 
         private List<TestCase> mapTestCases(string testCases)
         {
             List<TestCase> result = JsonConvert.DeserializeObject<List<TestCase>>(testCases);
-
+            for(int i = 0; i < result.Count; i++)
+            {
+                result[i].Lp = i;
+            }
             return result;
         }
     }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnlineJudge.Models.Domain;
 using Microsoft.AspNetCore.Authorization;
 using OnlineJudge.Models.Miscs;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace OnlineJudge.Controllers;
 
@@ -132,7 +133,7 @@ public class CodeController : Controller
     public IActionResult GetSubmission(Guid Id)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        var isAdmin = this.User.IsInRole(Roles.Administrator);
+        var isAdmin = User.IsInRole(Roles.Administrator);
         var result = _CodeService.GetSubmission(Id, userId, isAdmin);
 
         if (!result.Success)
@@ -140,15 +141,28 @@ public class CodeController : Controller
             return View("Error", result.Error);
         }
 
-        var isOutputOK = false;
-
-        //if (result.Value.Result != null && result.Value.Result.ExecutionStatus == ExecutionStatusEnum.Success)
-        //{
-        //    var expectedOutputs = result.Value.Assignment.AssignmentOutputs.Select(x => x.Text).ToList();
-        //    isOutputOK = OutputComparer.Compare(result.Value.Result.Output, expectedOutputs);
-        //}
-
+        bool isOutputOK = CompareResultsWithExpectedOutputs(result);
+        //var expectedOutputs = result.Value.Assignment.AssignmentOutputs.Select(x => x.Text).ToList();
+        //isOutputOK = OutputComparer.Compare(result.Value.Result.Output, expectedOutputs);
         return View("SubmissionView", new SubmissionViewModel { Submission = result.Value, IsOutputOK = isOutputOK });
+    }
+
+    private static bool CompareResultsWithExpectedOutputs(Result<Submission> result)
+    {
+        var isOutputOK = false;
+        if (result.Value.Results.Count == result.Value.Assignment.TestCases.Count)
+        {
+            isOutputOK = true;
+            for (int i = 0; i < result.Value.Results.Count; i++)
+            {
+                if (result.Value.Results[i].Output != result.Value.Assignment.TestCases[i].Output)
+                {
+                    isOutputOK = false;
+                    break;
+                }
+            }
+        }
+        return isOutputOK;
     }
 
     [Authorize]

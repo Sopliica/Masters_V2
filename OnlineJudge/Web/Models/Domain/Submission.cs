@@ -11,7 +11,7 @@
         public Guid AssignmentId { get; set; }
         public User User { get; set; }
         public Guid UserId { get; set; }
-        public List<SubmissionResult> Results { get; set; }
+        public List<SubmissionResult> Results { get; set; } = new List<SubmissionResult>();
         public SubmissionResult? Result { get; set; }
         public List<SubmissionLibrary> Libraries { get; set; } = new List<SubmissionLibrary>();
     }

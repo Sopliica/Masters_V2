@@ -66,9 +66,6 @@ namespace OnlineJudge.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("ResultId")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("Submitted")
                         .HasColumnType("TEXT");
 
@@ -78,8 +75,6 @@ namespace OnlineJudge.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssignmentId");
-
-                    b.HasIndex("ResultId");
 
                     b.HasIndex("UserId");
 
@@ -120,7 +115,7 @@ namespace OnlineJudge.Migrations
 
             modelBuilder.Entity("OnlineJudge.Models.Domain.SubmissionResult", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SubmissionResultId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
@@ -134,15 +129,21 @@ namespace OnlineJudge.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("SubmissionId")
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("SubmissionId1")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Time")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Id");
+                    b.HasKey("SubmissionResultId");
 
                     b.HasIndex("SubmissionId");
+
+                    b.HasIndex("SubmissionId1")
+                        .IsUnique();
 
                     b.ToTable("SubmissionResult");
                 });
@@ -183,6 +184,9 @@ namespace OnlineJudge.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Lp")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Output")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -202,10 +206,6 @@ namespace OnlineJudge.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OnlineJudge.Models.Domain.SubmissionResult", "Result")
-                        .WithMany()
-                        .HasForeignKey("ResultId");
-
                     b.HasOne("OnlineJudge.Models.Domain.User", "User")
                         .WithMany("Submissions")
                         .HasForeignKey("UserId")
@@ -213,8 +213,6 @@ namespace OnlineJudge.Migrations
                         .IsRequired();
 
                     b.Navigation("Assignment");
-
-                    b.Navigation("Result");
 
                     b.Navigation("User");
                 });
@@ -228,9 +226,17 @@ namespace OnlineJudge.Migrations
 
             modelBuilder.Entity("OnlineJudge.Models.Domain.SubmissionResult", b =>
                 {
-                    b.HasOne("OnlineJudge.Models.Domain.Submission", null)
+                    b.HasOne("OnlineJudge.Models.Domain.Submission", "Submission")
                         .WithMany("Results")
-                        .HasForeignKey("SubmissionId");
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnlineJudge.Models.Domain.Submission", null)
+                        .WithOne("Result")
+                        .HasForeignKey("OnlineJudge.Models.Domain.SubmissionResult", "SubmissionId1");
+
+                    b.Navigation("Submission");
                 });
 
             modelBuilder.Entity("OnlineJudge.Parsing.TestCase", b =>
@@ -250,6 +256,8 @@ namespace OnlineJudge.Migrations
             modelBuilder.Entity("OnlineJudge.Models.Domain.Submission", b =>
                 {
                     b.Navigation("Libraries");
+
+                    b.Navigation("Result");
 
                     b.Navigation("Results");
                 });

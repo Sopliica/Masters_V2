@@ -46,6 +46,7 @@ namespace OnlineJudge.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Lp = table.Column<int>(type: "INTEGER", nullable: false),
                     Input = table.Column<string>(type: "TEXT", nullable: false),
                     Output = table.Column<string>(type: "TEXT", nullable: false),
                     AssignmentId = table.Column<Guid>(type: "TEXT", nullable: true)
@@ -58,6 +59,35 @@ namespace OnlineJudge.Migrations
                         column: x => x.AssignmentId,
                         principalTable: "Assignments",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Submissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Language = table.Column<string>(type: "TEXT", nullable: false),
+                    Compiler = table.Column<string>(type: "TEXT", nullable: false),
+                    Code = table.Column<string>(type: "TEXT", nullable: false),
+                    Submitted = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    AssignmentId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Submissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Submissions_Assignments_AssignmentId",
+                        column: x => x.AssignmentId,
+                        principalTable: "Assignments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Submissions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,57 +104,39 @@ namespace OnlineJudge.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SubmissionLibrary", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubmissionLibrary_Submissions_SubmissionId",
+                        column: x => x.SubmissionId,
+                        principalTable: "Submissions",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "SubmissionResult",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SubmissionResultId = table.Column<Guid>(type: "TEXT", nullable: false),
                     Output = table.Column<string>(type: "TEXT", nullable: false),
                     Time = table.Column<int>(type: "INTEGER", nullable: false),
                     AttemptedExecutionsCount = table.Column<int>(type: "INTEGER", nullable: false),
                     ExecutionStatus = table.Column<int>(type: "INTEGER", nullable: false),
-                    SubmissionId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    SubmissionId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SubmissionId1 = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SubmissionResult", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Submissions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Language = table.Column<string>(type: "TEXT", nullable: false),
-                    Compiler = table.Column<string>(type: "TEXT", nullable: false),
-                    Code = table.Column<string>(type: "TEXT", nullable: false),
-                    Submitted = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    AssignmentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    ResultId = table.Column<Guid>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Submissions", x => x.Id);
+                    table.PrimaryKey("PK_SubmissionResult", x => x.SubmissionResultId);
                     table.ForeignKey(
-                        name: "FK_Submissions_Assignments_AssignmentId",
-                        column: x => x.AssignmentId,
-                        principalTable: "Assignments",
+                        name: "FK_SubmissionResult_Submissions_SubmissionId",
+                        column: x => x.SubmissionId,
+                        principalTable: "Submissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Submissions_SubmissionResult_ResultId",
-                        column: x => x.ResultId,
-                        principalTable: "SubmissionResult",
+                        name: "FK_SubmissionResult_Submissions_SubmissionId1",
+                        column: x => x.SubmissionId1,
+                        principalTable: "Submissions",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Submissions_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -138,14 +150,15 @@ namespace OnlineJudge.Migrations
                 column: "SubmissionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SubmissionResult_SubmissionId1",
+                table: "SubmissionResult",
+                column: "SubmissionId1",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Submissions_AssignmentId",
                 table: "Submissions",
                 column: "AssignmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Submissions_ResultId",
-                table: "Submissions",
-                column: "ResultId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Submissions_UserId",
@@ -156,31 +169,16 @@ namespace OnlineJudge.Migrations
                 name: "IX_TestCase_AssignmentId",
                 table: "TestCase",
                 column: "AssignmentId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_SubmissionLibrary_Submissions_SubmissionId",
-                table: "SubmissionLibrary",
-                column: "SubmissionId",
-                principalTable: "Submissions",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_SubmissionResult_Submissions_SubmissionId",
-                table: "SubmissionResult",
-                column: "SubmissionId",
-                principalTable: "Submissions",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_SubmissionResult_Submissions_SubmissionId",
-                table: "SubmissionResult");
-
             migrationBuilder.DropTable(
                 name: "SubmissionLibrary");
+
+            migrationBuilder.DropTable(
+                name: "SubmissionResult");
 
             migrationBuilder.DropTable(
                 name: "TestCase");
@@ -190,9 +188,6 @@ namespace OnlineJudge.Migrations
 
             migrationBuilder.DropTable(
                 name: "Assignments");
-
-            migrationBuilder.DropTable(
-                name: "SubmissionResult");
 
             migrationBuilder.DropTable(
                 name: "Users");

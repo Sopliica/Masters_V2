@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineJudge.Database;
+using OnlineJudge.Miscs;
 using OnlineJudge.Models.Domain;
 using Serilog;
 
@@ -40,6 +41,7 @@ namespace OnlineJudge.Services
                             .Include(x => x.Assignment)
                             .ThenInclude(x => x.TestCases)
                             .Include(x => x.Result)
+                            .Include(x => x.Results)
                             .Include(x => x.Libraries)
                             .Where(x => x.Result == null || x.Result.ExecutionStatus == ExecutionStatusEnum.NetworkError)
                             .OrderByDescending(x => x.Submitted)
@@ -53,16 +55,18 @@ namespace OnlineJudge.Services
                                 Log.Logger.Information("skipping execution");
                                 continue;
                             }
-
+                            List<SubmissionResult> results = new List<SubmissionResult>();
                             try
                             {
+                                bool allResultsOk = true;
                                 foreach (var testCase in execution.Assignment.TestCases)
                                 {
-                                    var result = cs.ExecuteCode(execution, testCase.Input).Result;
+                                    var result = cs.ExecuteCode(execution, testCase.Input, testCase.Lp).Result;
 
                                     if (result.Success)
                                     {
-                                        cs.UpdateSubmissionResult(execution, result.Value).Wait();
+                                        results.Add(result.Value);
+                                        
                                     }
                                     else
                                     {
@@ -72,9 +76,16 @@ namespace OnlineJudge.Services
                                             Output = result.Error,
                                             Time = -1
                                         };
-
-                                        cs.UpdateSubmissionResult(execution, newStatus).Wait();
+                                        results.Add(newStatus);
+                                        allResultsOk = false;
+                                        cs.UpdateSubmissionResult(execution, results).Wait();
+                                        break;
                                     }
+                                }
+                                if (allResultsOk)
+                                {
+                                    //cs.AddSubmissionResults(execution, results).Wait();
+                                    cs.UpdateSubmissionResult(execution, results).Wait();
                                 }
                             }
                             catch (Exception ex)
@@ -87,8 +98,8 @@ namespace OnlineJudge.Services
                                     Output = "Network Error",
                                     Time = -1
                                 };
-
-                                cs.UpdateSubmissionResult(execution, newStatus).Wait();
+                                results.Add(newStatus);
+                                cs.UpdateSubmissionResult(execution, results).Wait();
                             }
                         }
                     }

@@ -24,7 +24,8 @@ namespace OnlineJudge.Services
             string compiler,
             string code,
             List<SubmissionLibrary> libraries,
-            string stdin)
+            string stdin,
+            int lp)
         {
             var requestData = new GodboltRequest
             {
@@ -64,12 +65,12 @@ namespace OnlineJudge.Services
                 if (output.execResult.code == 0)
                 {
                     var stdout = string.Join("", output.execResult.stdout.Select(x => x.text));
-                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Success, stdout, Convert.ToInt32(output.execResult.execTime)));
+                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Success, stdout, Convert.ToInt32(output.execResult.execTime), lp));
                 }
                 else
                 {
                     var errMessage = $"Error: {string.Join(",", output.execResult.stderr) + string.Join(",", output.stderr)}";
-                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Failed, errMessage, Convert.ToInt32(output.execResult.execTime)));
+                    return Result.Ok(new SubmissionResult(ExecutionStatusEnum.Failed, errMessage, Convert.ToInt32(output.execResult.execTime),lp));
                 }
             }
             else
