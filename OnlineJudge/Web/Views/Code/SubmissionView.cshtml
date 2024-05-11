@@ -103,20 +103,36 @@
     @{
         var showErrorLog = Model.Submission.Result != null && Model.Submission.Result.ExecutionStatus == ExecutionStatusEnum.Failed;
     }
-    @if (User.IsInRole(Roles.Administrator) || showErrorLog || Model.IsOutputOK)
+    @if (@Model?.Submission?.CurrentTestCase?.Input != null && )
     {
-        <div style="text-align:center">
-            <b class="fieldName">Output:</b>
-        </div>
-        <br>
-        var size = 100;
-        if (Model.Submission.Result != null && Model.Submission.Result.Output.Length > 50)
+        @if (User.IsInRole(Roles.Administrator) || showErrorLog || Model.IsOutputOK)
         {
-            size = 500;
+            var size = 100;
+            <div style="text-align:center">
+                <b class="fieldName">Input</b>
+            </div>
+            <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@Model.Submission.CurrentTestCase.Input</textarea>
+
+            <div style="text-align:center">
+                <b class="fieldName">Output:</b>
+            </div>
+            <br>
+            if (Model.Submission.Result != null && Model.Submission.Result.Output.Length > 50)
+            {
+                size = 500;
+            }
+            <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@(Model.Submission.Result?.Output ?? "N/A")</textarea>
+            <br>
+            <br>
+            <div style="text-align:center">
+                <b class="fieldName">Expected</b>
+            </div>
+            <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@Model.Submission.CurrentTestCase.Output</textarea>
+
+            <br>
+            <br>
+            <br>
         }
-        <textarea id="outputArea" style="height:@(size)px" autocomplete="off" readonly="readonly">@(Model.Submission.Result?.Output ?? "N/A")</textarea>
-        <br>
-        <br>
     }
     <div style="text-align:center">
         <b class="fieldName">Submitted Code:</b>

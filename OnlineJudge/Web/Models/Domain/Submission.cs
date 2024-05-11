@@ -1,4 +1,6 @@
-﻿namespace OnlineJudge.Models.Domain
+﻿using OnlineJudge.Parsing;
+
+namespace OnlineJudge.Models.Domain
 {
     public class Submission
     {
@@ -14,5 +16,6 @@
         public List<SubmissionResult> Results { get; set; } = new List<SubmissionResult>();
         public SubmissionResult? Result { get; set; }
         public List<SubmissionLibrary> Libraries { get; set; } = new List<SubmissionLibrary>();
+        public TestCase? CurrentTestCase { get; set; }
     }
 }

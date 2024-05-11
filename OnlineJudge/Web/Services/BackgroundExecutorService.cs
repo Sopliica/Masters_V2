@@ -2,6 +2,7 @@
 using OnlineJudge.Database;
 using OnlineJudge.Miscs;
 using OnlineJudge.Models.Domain;
+using OnlineJudge.Parsing;
 using Serilog;
 
 namespace OnlineJudge.Services
@@ -47,7 +48,7 @@ namespace OnlineJudge.Services
                             .OrderByDescending(x => x.Submitted)
                             .ToList();
 
-                        
+                        TestCase currentTestCase = new();
                         foreach (var execution in executions)
                         {
                             if (execution.Result != null && execution.Result.AttemptedExecutionsCount > 1)
@@ -61,6 +62,7 @@ namespace OnlineJudge.Services
                                 bool allResultsOk = true;
                                 foreach (var testCase in execution.Assignment.TestCases)
                                 {
+                                    currentTestCase = testCase;
                                     var result = cs.ExecuteCode(execution, testCase.Input, testCase.Lp).Result;
 
                                     if (result.Success)
@@ -78,14 +80,13 @@ namespace OnlineJudge.Services
                                         };
                                         results.Add(newStatus);
                                         allResultsOk = false;
-                                        cs.UpdateSubmissionResult(execution, results).Wait();
+                                        cs.UpdateSubmissionResult(execution, results, currentTestCase).Wait();
                                         break;
                                     }
                                 }
                                 if (allResultsOk)
                                 {
-                                    //cs.AddSubmissionResults(execution, results).Wait();
-                                    cs.UpdateSubmissionResult(execution, results).Wait();
+                                    cs.UpdateSubmissionResult(execution, results, currentTestCase).Wait();
                                 }
                             }
                             catch (Exception ex)
@@ -99,7 +100,7 @@ namespace OnlineJudge.Services
                                     Time = -1
                                 };
                                 results.Add(newStatus);
-                                cs.UpdateSubmissionResult(execution, results).Wait();
+                                cs.UpdateSubmissionResult(execution, results, currentTestCase).Wait();
                             }
                         }
                     }

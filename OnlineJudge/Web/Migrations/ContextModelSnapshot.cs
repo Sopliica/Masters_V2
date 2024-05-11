@@ -62,6 +62,9 @@ namespace OnlineJudge.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("CurrentTestCaseId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Language")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -75,6 +78,8 @@ namespace OnlineJudge.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AssignmentId");
+
+                    b.HasIndex("CurrentTestCaseId");
 
                     b.HasIndex("UserId");
 
@@ -209,6 +214,10 @@ namespace OnlineJudge.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("OnlineJudge.Parsing.TestCase", "CurrentTestCase")
+                        .WithMany()
+                        .HasForeignKey("CurrentTestCaseId");
+
                     b.HasOne("OnlineJudge.Models.Domain.User", "User")
                         .WithMany("Submissions")
                         .HasForeignKey("UserId")
@@ -216,6 +225,8 @@ namespace OnlineJudge.Migrations
                         .IsRequired();
 
                     b.Navigation("Assignment");
+
+                    b.Navigation("CurrentTestCase");
 
                     b.Navigation("User");
                 });

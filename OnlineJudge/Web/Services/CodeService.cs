@@ -102,7 +102,7 @@ namespace OnlineJudge.Services
                 Code = input.Code.ReplaceLineEndings(),
                 AssignmentId = input.AssignmentId,
                 Compiler = input.Compiler,
-                UserId = UserId,
+                UserId = UserId
             };
 
             if (input.Libraries != null)
@@ -130,6 +130,7 @@ namespace OnlineJudge.Services
                 .ThenInclude(x => x.TestCases.OrderBy(l => l.Lp))
                 .Include(x => x.Result)
                 .Include(x => x.Results)
+                .Include(x => x.CurrentTestCase)
                 .ToList();
 
             return Result.Ok(submissions);
@@ -143,6 +144,7 @@ namespace OnlineJudge.Services
                 .ThenInclude(x => x.TestCases.OrderBy(l => l.Lp))
                 .Include(x => x.Result)
                 .Include(x => x.Results)
+                .Include(x => x.CurrentTestCase)
                 .Where(x => x.UserId == userId)
                 .ToList();
 
@@ -158,6 +160,7 @@ namespace OnlineJudge.Services
                 .Include(x => x.Result)
                 .Include(x => x.Results.OrderBy(l => l.Lp))
                 .Include(x => x.Libraries)
+                .Include(x => x.CurrentTestCase)
                 .FirstOrDefault(x => x.Id == Id);
 
             if (submission == null)
@@ -181,11 +184,12 @@ namespace OnlineJudge.Services
             return result;
         }
 
-        internal async Task UpdateSubmissionResult(Submission submission, List<SubmissionResult> results)
+        internal async Task UpdateSubmissionResult(Submission submission, List<SubmissionResult> results, TestCase testCase)
         {
             context.Attach(submission);
             submission.Result = results.Last();
             submission.Results = results;
+            submission.CurrentTestCase = testCase;
             foreach (var result in results)
             {
                 var currentCount = submission.Result?.AttemptedExecutionsCount ?? 0;

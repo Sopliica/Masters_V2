@@ -71,7 +71,8 @@ namespace OnlineJudge.Migrations
                     Code = table.Column<string>(type: "TEXT", nullable: false),
                     Submitted = table.Column<DateTime>(type: "TEXT", nullable: false),
                     AssignmentId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UserId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    UserId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CurrentTestCaseId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -82,6 +83,11 @@ namespace OnlineJudge.Migrations
                         principalTable: "Assignments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Submissions_TestCase_CurrentTestCaseId",
+                        column: x => x.CurrentTestCaseId,
+                        principalTable: "TestCase",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Submissions_Users_UserId",
                         column: x => x.UserId,
@@ -162,6 +168,11 @@ namespace OnlineJudge.Migrations
                 column: "AssignmentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Submissions_CurrentTestCaseId",
+                table: "Submissions",
+                column: "CurrentTestCaseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Submissions_UserId",
                 table: "Submissions",
                 column: "UserId");
@@ -182,16 +193,16 @@ namespace OnlineJudge.Migrations
                 name: "SubmissionResult");
 
             migrationBuilder.DropTable(
-                name: "TestCase");
-
-            migrationBuilder.DropTable(
                 name: "Submissions");
 
             migrationBuilder.DropTable(
-                name: "Assignments");
+                name: "TestCase");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Assignments");
         }
     }
 }

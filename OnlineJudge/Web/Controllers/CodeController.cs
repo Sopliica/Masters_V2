@@ -158,6 +158,7 @@ public class CodeController : Controller
                 if (result.Value.Results[i].Output != result.Value.Assignment.TestCases[i].Output)
                 {
                     isOutputOK = false;
+                    result.Value.CurrentTestCase = result.Value.Assignment.TestCases[i];
                     break;
                 }
             }
