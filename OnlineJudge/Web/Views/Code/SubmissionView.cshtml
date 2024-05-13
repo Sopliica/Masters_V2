@@ -103,7 +103,7 @@
     @{
         var showErrorLog = Model.Submission.Result != null && Model.Submission.Result.ExecutionStatus == ExecutionStatusEnum.Failed;
     }
-    @if (@Model?.Submission?.CurrentTestCase?.Input != null && )
+    @if (@Model?.Submission?.CurrentTestCase?.Input != null)
     {
         @if (User.IsInRole(Roles.Administrator) || showErrorLog || Model.IsOutputOK)
         {

@@ -142,6 +142,7 @@ public class CodeController : Controller
         }
 
         bool isOutputOK = CompareResultsWithExpectedOutputs(result);
+        result.Value.isSubmissionOk = isOutputOK;
         //var expectedOutputs = result.Value.Assignment.AssignmentOutputs.Select(x => x.Text).ToList();
         //isOutputOK = OutputComparer.Compare(result.Value.Result.Output, expectedOutputs);
         return View("SubmissionView", new SubmissionViewModel { Submission = result.Value, IsOutputOK = isOutputOK });

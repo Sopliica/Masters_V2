@@ -34,23 +34,13 @@
                 }
                 else
                 {
-                    var isOutputOK = false;
                     if (submission.Assignment.TestCases.Count == submission.Results.Count)
                     {
-                        isOutputOK = true;
-                        for (int i = 0; i < submission.Assignment.TestCases.Count; i++)
-                        {
-                            if (submission.Results[i].Output != submission.Assignment.TestCases[i].Output)
-                            {
-                                isOutputOK = false;
-                                break;
-                            }
-                        }
-                        color = isOutputOK ? "#28a745" : "#d73a49";
+                        color = submission.isSubmissionOk ? "#28a745" : "#d73a49";
                     }
                     else
                     {
-                        color = "#d73a49";
+                        color = "#dbab0a";
                     }
                 }
 

@@ -11,7 +11,7 @@ using OnlineJudge.Database;
 namespace OnlineJudge.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240510220039_InitialCreate")]
+    [Migration("20240513161517_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -77,6 +77,9 @@ namespace OnlineJudge.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("isSubmissionOk")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

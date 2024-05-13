@@ -72,7 +72,8 @@ namespace OnlineJudge.Migrations
                     Submitted = table.Column<DateTime>(type: "TEXT", nullable: false),
                     AssignmentId = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CurrentTestCaseId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    CurrentTestCaseId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    isSubmissionOk = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

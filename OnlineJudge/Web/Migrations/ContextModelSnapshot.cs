@@ -75,6 +75,9 @@ namespace OnlineJudge.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("isSubmissionOk")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssignmentId");

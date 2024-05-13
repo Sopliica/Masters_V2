@@ -17,5 +17,6 @@ namespace OnlineJudge.Models.Domain
         public SubmissionResult? Result { get; set; }
         public List<SubmissionLibrary> Libraries { get; set; } = new List<SubmissionLibrary>();
         public TestCase? CurrentTestCase { get; set; }
+        public bool isSubmissionOk { get; set; }
     }
 }
